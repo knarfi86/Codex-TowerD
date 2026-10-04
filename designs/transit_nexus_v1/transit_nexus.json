@@ -1,0 +1,4187 @@
+{
+  "schema": "creepgrid.transit_nexus.design.v1",
+  "name": "Transit Nexus",
+  "id": "transit_nexus_draft_v1",
+  "status": "design_only",
+  "coordinate_system": {
+    "origin": "top_left",
+    "x_direction": "right",
+    "y_direction": "down",
+    "cell_coordinates": "integer",
+    "screen_resolution_independent": true
+  },
+  "grid": {
+    "columns": 30,
+    "rows": 18,
+    "cell_size_preview_px": 40
+  },
+  "spawn": {
+    "id": "spawn_alpha_beta",
+    "cell": [
+      1,
+      8
+    ],
+    "label": "Inbound Spawn"
+  },
+  "base": {
+    "id": "base_alpha_beta",
+    "cell": [
+      28,
+      8
+    ],
+    "label": "Corporate Core"
+  },
+  "height_levels": {
+    "ground": {
+      "index": 0,
+      "label": "Bodenebene",
+      "z_units": 0
+    },
+    "elevated": {
+      "index": 1,
+      "label": "Überführungsebene",
+      "z_units": 1
+    }
+  },
+  "routes": [
+    {
+      "id": "route_alpha",
+      "label": "Alpha Freight Loop · ebenerdige Haupttrasse",
+      "color": "#31D7E8",
+      "spawn": [
+        1,
+        8
+      ],
+      "goal": [
+        28,
+        8
+      ],
+      "segments": [
+        {
+          "id": "alpha_spawn_ramp",
+          "from": [
+            1,
+            8
+          ],
+          "to": [
+            1,
+            5
+          ],
+          "level": "ground",
+          "surface": "road",
+          "cells": [
+            [
+              1,
+              8
+            ],
+            [
+              1,
+              7
+            ],
+            [
+              1,
+              6
+            ],
+            [
+              1,
+              5
+            ]
+          ]
+        },
+        {
+          "id": "alpha_north_lane",
+          "from": [
+            1,
+            5
+          ],
+          "to": [
+            4,
+            5
+          ],
+          "level": "ground",
+          "surface": "road",
+          "cells": [
+            [
+              1,
+              5
+            ],
+            [
+              2,
+              5
+            ],
+            [
+              3,
+              5
+            ],
+            [
+              4,
+              5
+            ]
+          ]
+        },
+        {
+          "id": "alpha_north_turn",
+          "from": [
+            4,
+            5
+          ],
+          "to": [
+            4,
+            4
+          ],
+          "level": "ground",
+          "surface": "road",
+          "cells": [
+            [
+              4,
+              5
+            ],
+            [
+              4,
+              4
+            ]
+          ]
+        },
+        {
+          "id": "alpha_north_parallel",
+          "from": [
+            4,
+            4
+          ],
+          "to": [
+            20,
+            4
+          ],
+          "level": "ground",
+          "surface": "road",
+          "cells": [
+            [
+              4,
+              4
+            ],
+            [
+              5,
+              4
+            ],
+            [
+              6,
+              4
+            ],
+            [
+              7,
+              4
+            ],
+            [
+              8,
+              4
+            ],
+            [
+              9,
+              4
+            ],
+            [
+              10,
+              4
+            ],
+            [
+              11,
+              4
+            ],
+            [
+              12,
+              4
+            ],
+            [
+              13,
+              4
+            ],
+            [
+              14,
+              4
+            ],
+            [
+              15,
+              4
+            ],
+            [
+              16,
+              4
+            ],
+            [
+              17,
+              4
+            ],
+            [
+              18,
+              4
+            ],
+            [
+              19,
+              4
+            ],
+            [
+              20,
+              4
+            ]
+          ]
+        },
+        {
+          "id": "alpha_down_link",
+          "from": [
+            20,
+            4
+          ],
+          "to": [
+            20,
+            14
+          ],
+          "level": "ground",
+          "surface": "road",
+          "cells": [
+            [
+              20,
+              4
+            ],
+            [
+              20,
+              5
+            ],
+            [
+              20,
+              6
+            ],
+            [
+              20,
+              7
+            ],
+            [
+              20,
+              8
+            ],
+            [
+              20,
+              9
+            ],
+            [
+              20,
+              10
+            ],
+            [
+              20,
+              11
+            ],
+            [
+              20,
+              12
+            ],
+            [
+              20,
+              13
+            ],
+            [
+              20,
+              14
+            ]
+          ]
+        },
+        {
+          "id": "alpha_south_parallel",
+          "from": [
+            20,
+            14
+          ],
+          "to": [
+            12,
+            14
+          ],
+          "level": "ground",
+          "surface": "road",
+          "cells": [
+            [
+              20,
+              14
+            ],
+            [
+              19,
+              14
+            ],
+            [
+              18,
+              14
+            ],
+            [
+              17,
+              14
+            ],
+            [
+              16,
+              14
+            ],
+            [
+              15,
+              14
+            ],
+            [
+              14,
+              14
+            ],
+            [
+              13,
+              14
+            ],
+            [
+              12,
+              14
+            ]
+          ]
+        },
+        {
+          "id": "alpha_south_turn",
+          "from": [
+            12,
+            14
+          ],
+          "to": [
+            12,
+            16
+          ],
+          "level": "ground",
+          "surface": "road",
+          "cells": [
+            [
+              12,
+              14
+            ],
+            [
+              12,
+              15
+            ],
+            [
+              12,
+              16
+            ]
+          ]
+        },
+        {
+          "id": "alpha_lower_parallel",
+          "from": [
+            12,
+            16
+          ],
+          "to": [
+            22,
+            16
+          ],
+          "level": "ground",
+          "surface": "road",
+          "cells": [
+            [
+              12,
+              16
+            ],
+            [
+              13,
+              16
+            ],
+            [
+              14,
+              16
+            ],
+            [
+              15,
+              16
+            ],
+            [
+              16,
+              16
+            ],
+            [
+              17,
+              16
+            ],
+            [
+              18,
+              16
+            ],
+            [
+              19,
+              16
+            ],
+            [
+              20,
+              16
+            ],
+            [
+              21,
+              16
+            ],
+            [
+              22,
+              16
+            ]
+          ]
+        },
+        {
+          "id": "alpha_return_link",
+          "from": [
+            22,
+            16
+          ],
+          "to": [
+            22,
+            8
+          ],
+          "level": "ground",
+          "surface": "road",
+          "cells": [
+            [
+              22,
+              16
+            ],
+            [
+              22,
+              15
+            ],
+            [
+              22,
+              14
+            ],
+            [
+              22,
+              13
+            ],
+            [
+              22,
+              12
+            ],
+            [
+              22,
+              11
+            ],
+            [
+              22,
+              10
+            ],
+            [
+              22,
+              9
+            ],
+            [
+              22,
+              8
+            ]
+          ]
+        },
+        {
+          "id": "alpha_lower_crossing",
+          "from": [
+            22,
+            8
+          ],
+          "to": [
+            26,
+            8
+          ],
+          "level": "ground",
+          "surface": "road",
+          "cells": [
+            [
+              22,
+              8
+            ],
+            [
+              23,
+              8
+            ],
+            [
+              24,
+              8
+            ],
+            [
+              25,
+              8
+            ],
+            [
+              26,
+              8
+            ]
+          ]
+        },
+        {
+          "id": "alpha_base_turn",
+          "from": [
+            26,
+            8
+          ],
+          "to": [
+            26,
+            6
+          ],
+          "level": "ground",
+          "surface": "road",
+          "cells": [
+            [
+              26,
+              8
+            ],
+            [
+              26,
+              7
+            ],
+            [
+              26,
+              6
+            ]
+          ]
+        },
+        {
+          "id": "alpha_base_lane",
+          "from": [
+            26,
+            6
+          ],
+          "to": [
+            28,
+            6
+          ],
+          "level": "ground",
+          "surface": "road",
+          "cells": [
+            [
+              26,
+              6
+            ],
+            [
+              27,
+              6
+            ],
+            [
+              28,
+              6
+            ]
+          ]
+        },
+        {
+          "id": "alpha_base_ramp",
+          "from": [
+            28,
+            6
+          ],
+          "to": [
+            28,
+            8
+          ],
+          "level": "ground",
+          "surface": "road",
+          "cells": [
+            [
+              28,
+              6
+            ],
+            [
+              28,
+              7
+            ],
+            [
+              28,
+              8
+            ]
+          ]
+        }
+      ],
+      "cells": [
+        {
+          "x": 1,
+          "y": 8,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 1,
+          "y": 7,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 1,
+          "y": 6,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 1,
+          "y": 5,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 2,
+          "y": 5,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 3,
+          "y": 5,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 4,
+          "y": 5,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 5,
+          "y": 4,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 6,
+          "y": 4,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 7,
+          "y": 4,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 8,
+          "y": 4,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 9,
+          "y": 4,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 10,
+          "y": 4,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 11,
+          "y": 4,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 12,
+          "y": 4,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 13,
+          "y": 4,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 14,
+          "y": 4,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 15,
+          "y": 4,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 16,
+          "y": 4,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 17,
+          "y": 4,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 18,
+          "y": 4,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 19,
+          "y": 4,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 20,
+          "y": 4,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 20,
+          "y": 5,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 20,
+          "y": 6,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 20,
+          "y": 7,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 20,
+          "y": 8,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 20,
+          "y": 9,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 20,
+          "y": 10,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 20,
+          "y": 11,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 20,
+          "y": 12,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 20,
+          "y": 13,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 20,
+          "y": 14,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 19,
+          "y": 14,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 18,
+          "y": 14,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 17,
+          "y": 14,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 16,
+          "y": 14,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 15,
+          "y": 14,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 14,
+          "y": 14,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 13,
+          "y": 14,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 12,
+          "y": 14,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 12,
+          "y": 15,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 12,
+          "y": 16,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 13,
+          "y": 16,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 14,
+          "y": 16,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 15,
+          "y": 16,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 16,
+          "y": 16,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 17,
+          "y": 16,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 18,
+          "y": 16,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 19,
+          "y": 16,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 20,
+          "y": 16,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 21,
+          "y": 16,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 22,
+          "y": 16,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 22,
+          "y": 15,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 22,
+          "y": 14,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 22,
+          "y": 13,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 22,
+          "y": 12,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 22,
+          "y": 11,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 22,
+          "y": 10,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 22,
+          "y": 9,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 22,
+          "y": 8,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 23,
+          "y": 8,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 24,
+          "y": 8,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 25,
+          "y": 8,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 26,
+          "y": 8,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 26,
+          "y": 7,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 26,
+          "y": 6,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 27,
+          "y": 6,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 28,
+          "y": 6,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 28,
+          "y": 7,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 28,
+          "y": 8,
+          "level": "ground",
+          "surface": "road"
+        }
+      ]
+    },
+    {
+      "id": "route_beta",
+      "label": "Beta Express · zentrale Überführung",
+      "color": "#FF9F43",
+      "spawn": [
+        1,
+        8
+      ],
+      "goal": [
+        28,
+        8
+      ],
+      "segments": [
+        {
+          "id": "beta_spawn_lane",
+          "from": [
+            1,
+            8
+          ],
+          "to": [
+            7,
+            8
+          ],
+          "level": "ground",
+          "surface": "road",
+          "cells": [
+            [
+              1,
+              8
+            ],
+            [
+              2,
+              8
+            ],
+            [
+              3,
+              8
+            ],
+            [
+              4,
+              8
+            ],
+            [
+              5,
+              8
+            ],
+            [
+              6,
+              8
+            ],
+            [
+              7,
+              8
+            ]
+          ]
+        },
+        {
+          "id": "beta_south_turn",
+          "from": [
+            7,
+            8
+          ],
+          "to": [
+            7,
+            12
+          ],
+          "level": "ground",
+          "surface": "road",
+          "cells": [
+            [
+              7,
+              8
+            ],
+            [
+              7,
+              9
+            ],
+            [
+              7,
+              10
+            ],
+            [
+              7,
+              11
+            ],
+            [
+              7,
+              12
+            ]
+          ]
+        },
+        {
+          "id": "beta_south_parallel",
+          "from": [
+            7,
+            12
+          ],
+          "to": [
+            18,
+            12
+          ],
+          "level": "ground",
+          "surface": "road",
+          "cells": [
+            [
+              7,
+              12
+            ],
+            [
+              8,
+              12
+            ],
+            [
+              9,
+              12
+            ],
+            [
+              10,
+              12
+            ],
+            [
+              11,
+              12
+            ],
+            [
+              12,
+              12
+            ],
+            [
+              13,
+              12
+            ],
+            [
+              14,
+              12
+            ],
+            [
+              15,
+              12
+            ],
+            [
+              16,
+              12
+            ],
+            [
+              17,
+              12
+            ],
+            [
+              18,
+              12
+            ]
+          ]
+        },
+        {
+          "id": "beta_up_link",
+          "from": [
+            18,
+            12
+          ],
+          "to": [
+            18,
+            8
+          ],
+          "level": "ground",
+          "surface": "road",
+          "cells": [
+            [
+              18,
+              12
+            ],
+            [
+              18,
+              11
+            ],
+            [
+              18,
+              10
+            ],
+            [
+              18,
+              9
+            ],
+            [
+              18,
+              8
+            ]
+          ]
+        },
+        {
+          "id": "beta_bridge_ramp_up",
+          "from": [
+            18,
+            8
+          ],
+          "to": [
+            19,
+            8
+          ],
+          "level": "elevated",
+          "surface": "bridge_ramp",
+          "cells": [
+            [
+              18,
+              8
+            ],
+            [
+              19,
+              8
+            ]
+          ]
+        },
+        {
+          "id": "beta_bridge_deck",
+          "from": [
+            19,
+            8
+          ],
+          "to": [
+            25,
+            8
+          ],
+          "level": "elevated",
+          "surface": "bridge_deck",
+          "cells": [
+            [
+              19,
+              8
+            ],
+            [
+              20,
+              8
+            ],
+            [
+              21,
+              8
+            ],
+            [
+              22,
+              8
+            ],
+            [
+              23,
+              8
+            ],
+            [
+              24,
+              8
+            ],
+            [
+              25,
+              8
+            ]
+          ]
+        },
+        {
+          "id": "beta_bridge_ramp_down",
+          "from": [
+            25,
+            8
+          ],
+          "to": [
+            25,
+            9
+          ],
+          "level": "ground",
+          "surface": "bridge_ramp",
+          "cells": [
+            [
+              25,
+              8
+            ],
+            [
+              25,
+              9
+            ]
+          ]
+        },
+        {
+          "id": "beta_lower_return",
+          "from": [
+            25,
+            9
+          ],
+          "to": [
+            25,
+            10
+          ],
+          "level": "ground",
+          "surface": "road",
+          "cells": [
+            [
+              25,
+              9
+            ],
+            [
+              25,
+              10
+            ]
+          ]
+        },
+        {
+          "id": "beta_base_lane",
+          "from": [
+            25,
+            10
+          ],
+          "to": [
+            28,
+            10
+          ],
+          "level": "ground",
+          "surface": "road",
+          "cells": [
+            [
+              25,
+              10
+            ],
+            [
+              26,
+              10
+            ],
+            [
+              27,
+              10
+            ],
+            [
+              28,
+              10
+            ]
+          ]
+        },
+        {
+          "id": "beta_base_ramp",
+          "from": [
+            28,
+            10
+          ],
+          "to": [
+            28,
+            8
+          ],
+          "level": "ground",
+          "surface": "road",
+          "cells": [
+            [
+              28,
+              10
+            ],
+            [
+              28,
+              9
+            ],
+            [
+              28,
+              8
+            ]
+          ]
+        }
+      ],
+      "cells": [
+        {
+          "x": 1,
+          "y": 8,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 2,
+          "y": 8,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 3,
+          "y": 8,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 4,
+          "y": 8,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 5,
+          "y": 8,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 6,
+          "y": 8,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 7,
+          "y": 8,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 7,
+          "y": 9,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 7,
+          "y": 10,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 7,
+          "y": 11,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 7,
+          "y": 12,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 8,
+          "y": 12,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 9,
+          "y": 12,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 10,
+          "y": 12,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 11,
+          "y": 12,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 12,
+          "y": 12,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 13,
+          "y": 12,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 14,
+          "y": 12,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 15,
+          "y": 12,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 16,
+          "y": 12,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 17,
+          "y": 12,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 18,
+          "y": 12,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 18,
+          "y": 11,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 18,
+          "y": 10,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 18,
+          "y": 9,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 18,
+          "y": 8,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 19,
+          "y": 8,
+          "level": "elevated",
+          "surface": "bridge_ramp"
+        },
+        {
+          "x": 20,
+          "y": 8,
+          "level": "elevated",
+          "surface": "bridge_deck"
+        },
+        {
+          "x": 21,
+          "y": 8,
+          "level": "elevated",
+          "surface": "bridge_deck"
+        },
+        {
+          "x": 22,
+          "y": 8,
+          "level": "elevated",
+          "surface": "bridge_deck"
+        },
+        {
+          "x": 23,
+          "y": 8,
+          "level": "elevated",
+          "surface": "bridge_deck"
+        },
+        {
+          "x": 24,
+          "y": 8,
+          "level": "elevated",
+          "surface": "bridge_deck"
+        },
+        {
+          "x": 25,
+          "y": 8,
+          "level": "elevated",
+          "surface": "bridge_deck"
+        },
+        {
+          "x": 25,
+          "y": 9,
+          "level": "ground",
+          "surface": "bridge_ramp"
+        },
+        {
+          "x": 25,
+          "y": 10,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 26,
+          "y": 10,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 27,
+          "y": 10,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 28,
+          "y": 10,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 28,
+          "y": 9,
+          "level": "ground",
+          "surface": "road"
+        },
+        {
+          "x": 28,
+          "y": 8,
+          "level": "ground",
+          "surface": "road"
+        }
+      ]
+    }
+  ],
+  "parallel_sections": [
+    {
+      "id": "parallel_south",
+      "route_a": "route_alpha",
+      "route_b": "route_beta",
+      "route_a_cells": [
+        [
+          12,
+          14
+        ],
+        [
+          20,
+          14
+        ]
+      ],
+      "route_b_cells": [
+        [
+          7,
+          12
+        ],
+        [
+          18,
+          12
+        ]
+      ],
+      "separation_cells": 2,
+      "strategy_note": "Support- und AoE-Fenster zwischen zwei langen Südtrassen."
+    },
+    {
+      "id": "parallel_overpass",
+      "route_a": "route_alpha",
+      "route_b": "route_beta",
+      "route_a_cells": [
+        [
+          22,
+          8
+        ],
+        [
+          25,
+          8
+        ]
+      ],
+      "route_b_cells": [
+        [
+          22,
+          8
+        ],
+        [
+          25,
+          8
+        ]
+      ],
+      "separation_cells": 0,
+      "strategy_note": "Gleiche XY-Projektion, aber getrennte Höhenebenen."
+    }
+  ],
+  "bridge_underpass": {
+    "id": "central_overpass_01",
+    "type": "route_beta_over_route_alpha",
+    "lower_route": "route_alpha",
+    "upper_route": "route_beta",
+    "lower_level": "ground",
+    "upper_level": "elevated",
+    "crossing_cells": [
+      [
+        20,
+        8
+      ],
+      [
+        21,
+        8
+      ],
+      [
+        22,
+        8
+      ],
+      [
+        23,
+        8
+      ],
+      [
+        24,
+        8
+      ],
+      [
+        25,
+        8
+      ]
+    ],
+    "transition_cells": [
+      [
+        18,
+        8
+      ],
+      [
+        19,
+        8
+      ],
+      [
+        25,
+        8
+      ],
+      [
+        25,
+        9
+      ]
+    ],
+    "connection_policy": "optical_crossing_only_no_route_switch",
+    "blender_notes": "Route Alpha receives lower deck and Route Beta a raised bridge deck with supports on the side; never merge nav meshes at the crossing."
+  },
+  "areas": {
+    "buildable_cells": [
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        2
+      ],
+      [
+        3,
+        2
+      ],
+      [
+        4,
+        2
+      ],
+      [
+        5,
+        2
+      ],
+      [
+        6,
+        2
+      ],
+      [
+        7,
+        2
+      ],
+      [
+        8,
+        2
+      ],
+      [
+        9,
+        2
+      ],
+      [
+        10,
+        2
+      ],
+      [
+        11,
+        2
+      ],
+      [
+        12,
+        2
+      ],
+      [
+        13,
+        2
+      ],
+      [
+        14,
+        2
+      ],
+      [
+        15,
+        2
+      ],
+      [
+        16,
+        2
+      ],
+      [
+        17,
+        2
+      ],
+      [
+        18,
+        2
+      ],
+      [
+        19,
+        2
+      ],
+      [
+        20,
+        2
+      ],
+      [
+        21,
+        2
+      ],
+      [
+        22,
+        2
+      ],
+      [
+        23,
+        2
+      ],
+      [
+        24,
+        2
+      ],
+      [
+        25,
+        2
+      ],
+      [
+        26,
+        2
+      ],
+      [
+        27,
+        2
+      ],
+      [
+        28,
+        2
+      ],
+      [
+        1,
+        3
+      ],
+      [
+        2,
+        3
+      ],
+      [
+        3,
+        3
+      ],
+      [
+        4,
+        3
+      ],
+      [
+        5,
+        3
+      ],
+      [
+        6,
+        3
+      ],
+      [
+        7,
+        3
+      ],
+      [
+        8,
+        3
+      ],
+      [
+        9,
+        3
+      ],
+      [
+        10,
+        3
+      ],
+      [
+        11,
+        3
+      ],
+      [
+        12,
+        3
+      ],
+      [
+        13,
+        3
+      ],
+      [
+        14,
+        3
+      ],
+      [
+        15,
+        3
+      ],
+      [
+        16,
+        3
+      ],
+      [
+        17,
+        3
+      ],
+      [
+        18,
+        3
+      ],
+      [
+        19,
+        3
+      ],
+      [
+        20,
+        3
+      ],
+      [
+        21,
+        3
+      ],
+      [
+        22,
+        3
+      ],
+      [
+        23,
+        3
+      ],
+      [
+        24,
+        3
+      ],
+      [
+        25,
+        3
+      ],
+      [
+        26,
+        3
+      ],
+      [
+        27,
+        3
+      ],
+      [
+        28,
+        3
+      ],
+      [
+        1,
+        4
+      ],
+      [
+        2,
+        4
+      ],
+      [
+        3,
+        4
+      ],
+      [
+        21,
+        4
+      ],
+      [
+        22,
+        4
+      ],
+      [
+        23,
+        4
+      ],
+      [
+        24,
+        4
+      ],
+      [
+        25,
+        4
+      ],
+      [
+        26,
+        4
+      ],
+      [
+        27,
+        4
+      ],
+      [
+        28,
+        4
+      ],
+      [
+        5,
+        5
+      ],
+      [
+        6,
+        5
+      ],
+      [
+        7,
+        5
+      ],
+      [
+        8,
+        5
+      ],
+      [
+        9,
+        5
+      ],
+      [
+        10,
+        5
+      ],
+      [
+        11,
+        5
+      ],
+      [
+        12,
+        5
+      ],
+      [
+        13,
+        5
+      ],
+      [
+        14,
+        5
+      ],
+      [
+        15,
+        5
+      ],
+      [
+        16,
+        5
+      ],
+      [
+        17,
+        5
+      ],
+      [
+        18,
+        5
+      ],
+      [
+        19,
+        5
+      ],
+      [
+        21,
+        5
+      ],
+      [
+        22,
+        5
+      ],
+      [
+        23,
+        5
+      ],
+      [
+        24,
+        5
+      ],
+      [
+        25,
+        5
+      ],
+      [
+        26,
+        5
+      ],
+      [
+        27,
+        5
+      ],
+      [
+        28,
+        5
+      ],
+      [
+        2,
+        6
+      ],
+      [
+        3,
+        6
+      ],
+      [
+        4,
+        6
+      ],
+      [
+        5,
+        6
+      ],
+      [
+        6,
+        6
+      ],
+      [
+        7,
+        6
+      ],
+      [
+        8,
+        6
+      ],
+      [
+        12,
+        6
+      ],
+      [
+        13,
+        6
+      ],
+      [
+        14,
+        6
+      ],
+      [
+        15,
+        6
+      ],
+      [
+        16,
+        6
+      ],
+      [
+        17,
+        6
+      ],
+      [
+        18,
+        6
+      ],
+      [
+        19,
+        6
+      ],
+      [
+        21,
+        6
+      ],
+      [
+        22,
+        6
+      ],
+      [
+        23,
+        6
+      ],
+      [
+        24,
+        6
+      ],
+      [
+        25,
+        6
+      ],
+      [
+        2,
+        7
+      ],
+      [
+        3,
+        7
+      ],
+      [
+        4,
+        7
+      ],
+      [
+        5,
+        7
+      ],
+      [
+        6,
+        7
+      ],
+      [
+        7,
+        7
+      ],
+      [
+        8,
+        7
+      ],
+      [
+        12,
+        7
+      ],
+      [
+        13,
+        7
+      ],
+      [
+        14,
+        7
+      ],
+      [
+        15,
+        7
+      ],
+      [
+        16,
+        7
+      ],
+      [
+        17,
+        7
+      ],
+      [
+        18,
+        7
+      ],
+      [
+        19,
+        7
+      ],
+      [
+        21,
+        7
+      ],
+      [
+        22,
+        7
+      ],
+      [
+        23,
+        7
+      ],
+      [
+        24,
+        7
+      ],
+      [
+        25,
+        7
+      ],
+      [
+        27,
+        7
+      ],
+      [
+        8,
+        8
+      ],
+      [
+        12,
+        8
+      ],
+      [
+        13,
+        8
+      ],
+      [
+        14,
+        8
+      ],
+      [
+        15,
+        8
+      ],
+      [
+        16,
+        8
+      ],
+      [
+        17,
+        8
+      ],
+      [
+        27,
+        8
+      ],
+      [
+        1,
+        9
+      ],
+      [
+        2,
+        9
+      ],
+      [
+        3,
+        9
+      ],
+      [
+        4,
+        9
+      ],
+      [
+        5,
+        9
+      ],
+      [
+        6,
+        9
+      ],
+      [
+        8,
+        9
+      ],
+      [
+        12,
+        9
+      ],
+      [
+        13,
+        9
+      ],
+      [
+        14,
+        9
+      ],
+      [
+        15,
+        9
+      ],
+      [
+        16,
+        9
+      ],
+      [
+        17,
+        9
+      ],
+      [
+        19,
+        9
+      ],
+      [
+        21,
+        9
+      ],
+      [
+        23,
+        9
+      ],
+      [
+        24,
+        9
+      ],
+      [
+        26,
+        9
+      ],
+      [
+        27,
+        9
+      ],
+      [
+        1,
+        10
+      ],
+      [
+        2,
+        10
+      ],
+      [
+        3,
+        10
+      ],
+      [
+        4,
+        10
+      ],
+      [
+        5,
+        10
+      ],
+      [
+        6,
+        10
+      ],
+      [
+        8,
+        10
+      ],
+      [
+        12,
+        10
+      ],
+      [
+        13,
+        10
+      ],
+      [
+        14,
+        10
+      ],
+      [
+        15,
+        10
+      ],
+      [
+        16,
+        10
+      ],
+      [
+        17,
+        10
+      ],
+      [
+        19,
+        10
+      ],
+      [
+        21,
+        10
+      ],
+      [
+        23,
+        10
+      ],
+      [
+        24,
+        10
+      ],
+      [
+        1,
+        11
+      ],
+      [
+        2,
+        11
+      ],
+      [
+        3,
+        11
+      ],
+      [
+        4,
+        11
+      ],
+      [
+        5,
+        11
+      ],
+      [
+        6,
+        11
+      ],
+      [
+        8,
+        11
+      ],
+      [
+        9,
+        11
+      ],
+      [
+        10,
+        11
+      ],
+      [
+        11,
+        11
+      ],
+      [
+        12,
+        11
+      ],
+      [
+        13,
+        11
+      ],
+      [
+        14,
+        11
+      ],
+      [
+        15,
+        11
+      ],
+      [
+        16,
+        11
+      ],
+      [
+        17,
+        11
+      ],
+      [
+        19,
+        11
+      ],
+      [
+        21,
+        11
+      ],
+      [
+        23,
+        11
+      ],
+      [
+        27,
+        11
+      ],
+      [
+        28,
+        11
+      ],
+      [
+        1,
+        12
+      ],
+      [
+        2,
+        12
+      ],
+      [
+        3,
+        12
+      ],
+      [
+        4,
+        12
+      ],
+      [
+        5,
+        12
+      ],
+      [
+        6,
+        12
+      ],
+      [
+        19,
+        12
+      ],
+      [
+        21,
+        12
+      ],
+      [
+        23,
+        12
+      ],
+      [
+        27,
+        12
+      ],
+      [
+        28,
+        12
+      ],
+      [
+        1,
+        13
+      ],
+      [
+        4,
+        13
+      ],
+      [
+        5,
+        13
+      ],
+      [
+        6,
+        13
+      ],
+      [
+        7,
+        13
+      ],
+      [
+        8,
+        13
+      ],
+      [
+        9,
+        13
+      ],
+      [
+        10,
+        13
+      ],
+      [
+        11,
+        13
+      ],
+      [
+        12,
+        13
+      ],
+      [
+        13,
+        13
+      ],
+      [
+        14,
+        13
+      ],
+      [
+        15,
+        13
+      ],
+      [
+        16,
+        13
+      ],
+      [
+        17,
+        13
+      ],
+      [
+        18,
+        13
+      ],
+      [
+        19,
+        13
+      ],
+      [
+        21,
+        13
+      ],
+      [
+        23,
+        13
+      ],
+      [
+        27,
+        13
+      ],
+      [
+        28,
+        13
+      ],
+      [
+        1,
+        14
+      ],
+      [
+        4,
+        14
+      ],
+      [
+        5,
+        14
+      ],
+      [
+        6,
+        14
+      ],
+      [
+        7,
+        14
+      ],
+      [
+        8,
+        14
+      ],
+      [
+        9,
+        14
+      ],
+      [
+        10,
+        14
+      ],
+      [
+        11,
+        14
+      ],
+      [
+        21,
+        14
+      ],
+      [
+        23,
+        14
+      ],
+      [
+        27,
+        14
+      ],
+      [
+        28,
+        14
+      ],
+      [
+        1,
+        15
+      ],
+      [
+        4,
+        15
+      ],
+      [
+        5,
+        15
+      ],
+      [
+        6,
+        15
+      ],
+      [
+        7,
+        15
+      ],
+      [
+        8,
+        15
+      ],
+      [
+        9,
+        15
+      ],
+      [
+        10,
+        15
+      ],
+      [
+        11,
+        15
+      ],
+      [
+        13,
+        15
+      ],
+      [
+        14,
+        15
+      ],
+      [
+        15,
+        15
+      ],
+      [
+        16,
+        15
+      ],
+      [
+        17,
+        15
+      ],
+      [
+        18,
+        15
+      ],
+      [
+        19,
+        15
+      ],
+      [
+        20,
+        15
+      ],
+      [
+        21,
+        15
+      ],
+      [
+        23,
+        15
+      ],
+      [
+        27,
+        15
+      ],
+      [
+        28,
+        15
+      ],
+      [
+        1,
+        16
+      ],
+      [
+        2,
+        16
+      ],
+      [
+        3,
+        16
+      ],
+      [
+        4,
+        16
+      ],
+      [
+        5,
+        16
+      ],
+      [
+        6,
+        16
+      ],
+      [
+        7,
+        16
+      ],
+      [
+        8,
+        16
+      ],
+      [
+        9,
+        16
+      ],
+      [
+        10,
+        16
+      ],
+      [
+        11,
+        16
+      ],
+      [
+        23,
+        16
+      ],
+      [
+        24,
+        16
+      ],
+      [
+        25,
+        16
+      ],
+      [
+        26,
+        16
+      ],
+      [
+        27,
+        16
+      ],
+      [
+        28,
+        16
+      ]
+    ],
+    "blocked_cells": [
+      [
+        0,
+        0
+      ],
+      [
+        0,
+        1
+      ],
+      [
+        0,
+        2
+      ],
+      [
+        0,
+        3
+      ],
+      [
+        0,
+        4
+      ],
+      [
+        0,
+        5
+      ],
+      [
+        0,
+        6
+      ],
+      [
+        0,
+        7
+      ],
+      [
+        0,
+        8
+      ],
+      [
+        0,
+        9
+      ],
+      [
+        0,
+        10
+      ],
+      [
+        0,
+        11
+      ],
+      [
+        0,
+        12
+      ],
+      [
+        0,
+        13
+      ],
+      [
+        0,
+        14
+      ],
+      [
+        0,
+        15
+      ],
+      [
+        0,
+        16
+      ],
+      [
+        0,
+        17
+      ],
+      [
+        1,
+        0
+      ],
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        17
+      ],
+      [
+        2,
+        0
+      ],
+      [
+        2,
+        1
+      ],
+      [
+        2,
+        13
+      ],
+      [
+        2,
+        14
+      ],
+      [
+        2,
+        15
+      ],
+      [
+        2,
+        17
+      ],
+      [
+        3,
+        0
+      ],
+      [
+        3,
+        1
+      ],
+      [
+        3,
+        13
+      ],
+      [
+        3,
+        14
+      ],
+      [
+        3,
+        15
+      ],
+      [
+        3,
+        17
+      ],
+      [
+        4,
+        0
+      ],
+      [
+        4,
+        1
+      ],
+      [
+        4,
+        17
+      ],
+      [
+        5,
+        0
+      ],
+      [
+        5,
+        1
+      ],
+      [
+        5,
+        17
+      ],
+      [
+        6,
+        0
+      ],
+      [
+        6,
+        1
+      ],
+      [
+        6,
+        17
+      ],
+      [
+        7,
+        0
+      ],
+      [
+        7,
+        1
+      ],
+      [
+        7,
+        17
+      ],
+      [
+        8,
+        0
+      ],
+      [
+        8,
+        1
+      ],
+      [
+        8,
+        17
+      ],
+      [
+        9,
+        0
+      ],
+      [
+        9,
+        1
+      ],
+      [
+        9,
+        6
+      ],
+      [
+        9,
+        7
+      ],
+      [
+        9,
+        8
+      ],
+      [
+        9,
+        9
+      ],
+      [
+        9,
+        10
+      ],
+      [
+        9,
+        17
+      ],
+      [
+        10,
+        0
+      ],
+      [
+        10,
+        1
+      ],
+      [
+        10,
+        6
+      ],
+      [
+        10,
+        7
+      ],
+      [
+        10,
+        8
+      ],
+      [
+        10,
+        9
+      ],
+      [
+        10,
+        10
+      ],
+      [
+        10,
+        17
+      ],
+      [
+        11,
+        0
+      ],
+      [
+        11,
+        1
+      ],
+      [
+        11,
+        6
+      ],
+      [
+        11,
+        7
+      ],
+      [
+        11,
+        8
+      ],
+      [
+        11,
+        9
+      ],
+      [
+        11,
+        10
+      ],
+      [
+        11,
+        17
+      ],
+      [
+        12,
+        0
+      ],
+      [
+        12,
+        1
+      ],
+      [
+        12,
+        17
+      ],
+      [
+        13,
+        0
+      ],
+      [
+        13,
+        1
+      ],
+      [
+        13,
+        17
+      ],
+      [
+        14,
+        0
+      ],
+      [
+        14,
+        1
+      ],
+      [
+        14,
+        17
+      ],
+      [
+        15,
+        0
+      ],
+      [
+        15,
+        1
+      ],
+      [
+        15,
+        17
+      ],
+      [
+        16,
+        0
+      ],
+      [
+        16,
+        1
+      ],
+      [
+        16,
+        17
+      ],
+      [
+        17,
+        0
+      ],
+      [
+        17,
+        1
+      ],
+      [
+        17,
+        17
+      ],
+      [
+        18,
+        0
+      ],
+      [
+        18,
+        1
+      ],
+      [
+        18,
+        17
+      ],
+      [
+        19,
+        0
+      ],
+      [
+        19,
+        1
+      ],
+      [
+        19,
+        17
+      ],
+      [
+        20,
+        0
+      ],
+      [
+        20,
+        1
+      ],
+      [
+        20,
+        17
+      ],
+      [
+        21,
+        0
+      ],
+      [
+        21,
+        1
+      ],
+      [
+        21,
+        17
+      ],
+      [
+        22,
+        0
+      ],
+      [
+        22,
+        1
+      ],
+      [
+        22,
+        17
+      ],
+      [
+        23,
+        0
+      ],
+      [
+        23,
+        1
+      ],
+      [
+        23,
+        17
+      ],
+      [
+        24,
+        0
+      ],
+      [
+        24,
+        1
+      ],
+      [
+        24,
+        11
+      ],
+      [
+        24,
+        12
+      ],
+      [
+        24,
+        13
+      ],
+      [
+        24,
+        14
+      ],
+      [
+        24,
+        15
+      ],
+      [
+        24,
+        17
+      ],
+      [
+        25,
+        0
+      ],
+      [
+        25,
+        1
+      ],
+      [
+        25,
+        11
+      ],
+      [
+        25,
+        12
+      ],
+      [
+        25,
+        13
+      ],
+      [
+        25,
+        14
+      ],
+      [
+        25,
+        15
+      ],
+      [
+        25,
+        17
+      ],
+      [
+        26,
+        0
+      ],
+      [
+        26,
+        1
+      ],
+      [
+        26,
+        11
+      ],
+      [
+        26,
+        12
+      ],
+      [
+        26,
+        13
+      ],
+      [
+        26,
+        14
+      ],
+      [
+        26,
+        15
+      ],
+      [
+        26,
+        17
+      ],
+      [
+        27,
+        0
+      ],
+      [
+        27,
+        1
+      ],
+      [
+        27,
+        17
+      ],
+      [
+        28,
+        0
+      ],
+      [
+        28,
+        1
+      ],
+      [
+        28,
+        17
+      ],
+      [
+        29,
+        0
+      ],
+      [
+        29,
+        1
+      ],
+      [
+        29,
+        2
+      ],
+      [
+        29,
+        3
+      ],
+      [
+        29,
+        4
+      ],
+      [
+        29,
+        5
+      ],
+      [
+        29,
+        6
+      ],
+      [
+        29,
+        7
+      ],
+      [
+        29,
+        8
+      ],
+      [
+        29,
+        9
+      ],
+      [
+        29,
+        10
+      ],
+      [
+        29,
+        11
+      ],
+      [
+        29,
+        12
+      ],
+      [
+        29,
+        13
+      ],
+      [
+        29,
+        14
+      ],
+      [
+        29,
+        15
+      ],
+      [
+        29,
+        16
+      ],
+      [
+        29,
+        17
+      ]
+    ],
+    "blocked_zones": [
+      {
+        "id": "security_perimeter",
+        "label": "Sicherheitsperimeter",
+        "cells": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            5,
+            0
+          ],
+          [
+            6,
+            0
+          ],
+          [
+            7,
+            0
+          ],
+          [
+            8,
+            0
+          ],
+          [
+            9,
+            0
+          ],
+          [
+            10,
+            0
+          ],
+          [
+            11,
+            0
+          ],
+          [
+            12,
+            0
+          ],
+          [
+            13,
+            0
+          ],
+          [
+            14,
+            0
+          ],
+          [
+            15,
+            0
+          ],
+          [
+            16,
+            0
+          ],
+          [
+            17,
+            0
+          ],
+          [
+            18,
+            0
+          ],
+          [
+            19,
+            0
+          ],
+          [
+            20,
+            0
+          ],
+          [
+            21,
+            0
+          ],
+          [
+            22,
+            0
+          ],
+          [
+            23,
+            0
+          ],
+          [
+            24,
+            0
+          ],
+          [
+            25,
+            0
+          ],
+          [
+            26,
+            0
+          ],
+          [
+            27,
+            0
+          ],
+          [
+            28,
+            0
+          ],
+          [
+            29,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            3,
+            1
+          ],
+          [
+            4,
+            1
+          ],
+          [
+            5,
+            1
+          ],
+          [
+            6,
+            1
+          ],
+          [
+            7,
+            1
+          ],
+          [
+            8,
+            1
+          ],
+          [
+            9,
+            1
+          ],
+          [
+            10,
+            1
+          ],
+          [
+            11,
+            1
+          ],
+          [
+            12,
+            1
+          ],
+          [
+            13,
+            1
+          ],
+          [
+            14,
+            1
+          ],
+          [
+            15,
+            1
+          ],
+          [
+            16,
+            1
+          ],
+          [
+            17,
+            1
+          ],
+          [
+            18,
+            1
+          ],
+          [
+            19,
+            1
+          ],
+          [
+            20,
+            1
+          ],
+          [
+            21,
+            1
+          ],
+          [
+            22,
+            1
+          ],
+          [
+            23,
+            1
+          ],
+          [
+            24,
+            1
+          ],
+          [
+            25,
+            1
+          ],
+          [
+            26,
+            1
+          ],
+          [
+            27,
+            1
+          ],
+          [
+            28,
+            1
+          ],
+          [
+            29,
+            1
+          ],
+          [
+            0,
+            17
+          ],
+          [
+            1,
+            17
+          ],
+          [
+            2,
+            17
+          ],
+          [
+            3,
+            17
+          ],
+          [
+            4,
+            17
+          ],
+          [
+            5,
+            17
+          ],
+          [
+            6,
+            17
+          ],
+          [
+            7,
+            17
+          ],
+          [
+            8,
+            17
+          ],
+          [
+            9,
+            17
+          ],
+          [
+            10,
+            17
+          ],
+          [
+            11,
+            17
+          ],
+          [
+            12,
+            17
+          ],
+          [
+            13,
+            17
+          ],
+          [
+            14,
+            17
+          ],
+          [
+            15,
+            17
+          ],
+          [
+            16,
+            17
+          ],
+          [
+            17,
+            17
+          ],
+          [
+            18,
+            17
+          ],
+          [
+            19,
+            17
+          ],
+          [
+            20,
+            17
+          ],
+          [
+            21,
+            17
+          ],
+          [
+            22,
+            17
+          ],
+          [
+            23,
+            17
+          ],
+          [
+            24,
+            17
+          ],
+          [
+            25,
+            17
+          ],
+          [
+            26,
+            17
+          ],
+          [
+            27,
+            17
+          ],
+          [
+            28,
+            17
+          ],
+          [
+            29,
+            17
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            0,
+            3
+          ],
+          [
+            0,
+            4
+          ],
+          [
+            0,
+            5
+          ],
+          [
+            0,
+            6
+          ],
+          [
+            0,
+            7
+          ],
+          [
+            0,
+            8
+          ],
+          [
+            0,
+            9
+          ],
+          [
+            0,
+            10
+          ],
+          [
+            0,
+            11
+          ],
+          [
+            0,
+            12
+          ],
+          [
+            0,
+            13
+          ],
+          [
+            0,
+            14
+          ],
+          [
+            0,
+            15
+          ],
+          [
+            0,
+            16
+          ],
+          [
+            29,
+            2
+          ],
+          [
+            29,
+            3
+          ],
+          [
+            29,
+            4
+          ],
+          [
+            29,
+            5
+          ],
+          [
+            29,
+            6
+          ],
+          [
+            29,
+            7
+          ],
+          [
+            29,
+            8
+          ],
+          [
+            29,
+            9
+          ],
+          [
+            29,
+            10
+          ],
+          [
+            29,
+            11
+          ],
+          [
+            29,
+            12
+          ],
+          [
+            29,
+            13
+          ],
+          [
+            29,
+            14
+          ],
+          [
+            29,
+            15
+          ],
+          [
+            29,
+            16
+          ]
+        ]
+      },
+      {
+        "id": "command_core",
+        "label": "Gesperrter Command Core",
+        "cells": [
+          [
+            9,
+            6
+          ],
+          [
+            10,
+            6
+          ],
+          [
+            11,
+            6
+          ],
+          [
+            9,
+            7
+          ],
+          [
+            10,
+            7
+          ],
+          [
+            11,
+            7
+          ],
+          [
+            9,
+            8
+          ],
+          [
+            10,
+            8
+          ],
+          [
+            11,
+            8
+          ],
+          [
+            9,
+            9
+          ],
+          [
+            10,
+            9
+          ],
+          [
+            11,
+            9
+          ],
+          [
+            9,
+            10
+          ],
+          [
+            10,
+            10
+          ],
+          [
+            11,
+            10
+          ]
+        ]
+      },
+      {
+        "id": "freight_yard",
+        "label": "Gesperrter Freight Yard",
+        "cells": [
+          [
+            24,
+            11
+          ],
+          [
+            25,
+            11
+          ],
+          [
+            26,
+            11
+          ],
+          [
+            24,
+            12
+          ],
+          [
+            25,
+            12
+          ],
+          [
+            26,
+            12
+          ],
+          [
+            24,
+            13
+          ],
+          [
+            25,
+            13
+          ],
+          [
+            26,
+            13
+          ],
+          [
+            24,
+            14
+          ],
+          [
+            25,
+            14
+          ],
+          [
+            26,
+            14
+          ],
+          [
+            24,
+            15
+          ],
+          [
+            25,
+            15
+          ],
+          [
+            26,
+            15
+          ]
+        ]
+      },
+      {
+        "id": "reactor_buffer",
+        "label": "Reaktor-Sicherheitszone",
+        "cells": [
+          [
+            2,
+            13
+          ],
+          [
+            3,
+            13
+          ],
+          [
+            2,
+            14
+          ],
+          [
+            3,
+            14
+          ],
+          [
+            2,
+            15
+          ],
+          [
+            3,
+            15
+          ]
+        ]
+      }
+    ],
+    "route_cells_are_blocked_for_building": true
+  },
+  "preview": {
+    "width_px": 1200,
+    "height_px": 720,
+    "cell_px": 40,
+    "legend": [
+      "Baufläche",
+      "gesperrte Fläche",
+      "Route Alpha · Boden",
+      "Route Beta · Boden",
+      "Route Beta · Überführung",
+      "Spawn",
+      "Basis"
+    ]
+  },
+  "render_manifest": {
+    "route_cell_counts": {
+      "route_alpha": 72,
+      "route_beta": 40
+    },
+    "route_footprint_count": 105,
+    "buildable_count": 279,
+    "blocked_count": 156,
+    "bridge_crossing_cells": [
+      [
+        20,
+        8
+      ],
+      [
+        21,
+        8
+      ],
+      [
+        22,
+        8
+      ],
+      [
+        23,
+        8
+      ],
+      [
+        24,
+        8
+      ],
+      [
+        25,
+        8
+      ]
+    ]
+  }
+}

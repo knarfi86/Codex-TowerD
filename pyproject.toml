@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "creepgrid-tower-defense"
+version = "0.1.0"
+description = "Startbares Pygame Tower-Defense im CreepTD-Stil"
+requires-python = ">=3.10"
+
+[project.optional-dependencies]
+gui = ["pygame-ce>=2.5.0"]
+
+[tool.setuptools.packages.find]
+where = ["."]
