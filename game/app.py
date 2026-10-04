@@ -13,6 +13,7 @@ from .constants import (
     SELECT, SNAPSHOT_RATE, TEXT, TICK_RATE, TOWER_DEFS, TOWER_TYPES, WATER, WINDOW_H, WINDOW_W,
 )
 from .config import RESOLUTION_PRESETS, load_config, save_config
+from .advisor import CharacterView
 from .evil_commentary import EvilCommentary
 from .layout import ResponsiveLayout
 from .maps import MAPS, get_map, map_indices_for_layout, path_cells
@@ -25,6 +26,18 @@ from .ui_data import DIFFICULTY_FLAVOR, MAP_FAMILY_INFO, MODE_INFO, mode_info
 Point = Tuple[float, float]
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+MR_EVIL_ASSET_FILE = PROJECT_ROOT / "assets" / "characters" / "mr_evil.png"
+TOWER_ASSET_FILES = {
+    "mg": PROJECT_ROOT / "assets" / "towers" / "mg.png",
+    "artillery": PROJECT_ROOT / "assets" / "towers" / "artillery.png",
+    "laser": PROJECT_ROOT / "assets" / "towers" / "laser.png",
+    "tesla": PROJECT_ROOT / "assets" / "towers" / "tesla.png",
+    "support": PROJECT_ROOT / "assets" / "towers" / "support.png",
+}
+TOWER_ICON_FILES = {
+    kind: PROJECT_ROOT / "assets" / "towers" / "icons" / f"{kind}.png"
+    for kind in TOWER_ASSET_FILES
+}
 CREEP_ASSET_FILES = {
     "scout": PROJECT_ROOT / "assets" / "creeps" / "creep_standard.png",
     "raider": PROJECT_ROOT / "assets" / "creeps" / "creep_fast.png",
@@ -61,6 +74,7 @@ class GameApp:
             text_size=gameplay_config.get("evil_text_size", "normal"),
         )
         self.evil_comment: Optional[Dict[str, object]] = None
+        self._evil_pending: List[Dict[str, object]] = []
         self.evil_comment_until = 0.0
         self.evil_comment_started = 0.0
         self._evil_seen_enemy_roles: set[str] = set()
@@ -77,11 +91,18 @@ class GameApp:
         self.creep_assets: Dict[str, pygame.Surface] = {}
         self.creep_asset_errors: Dict[str, str] = {}
         self.creep_sprite_cache: Dict[Tuple[str, int, Tuple[int, int]], pygame.Surface] = {}
+        self.tower_assets: Dict[str, pygame.Surface] = {}
+        self.tower_icons: Dict[str, pygame.Surface] = {}
+        self.tower_asset_errors: Dict[str, str] = {}
+        self.tower_sprite_cache: Dict[Tuple[str, int, Tuple[int, int]], pygame.Surface] = {}
+        self.tower_icon_cache: Dict[Tuple[str, int], pygame.Surface] = {}
         self.arena_background: Optional[pygame.Surface] = None
         self.arena_background_cache: Dict[Tuple[int, int], pygame.Surface] = {}
         self.map_backgrounds: Dict[str, pygame.Surface] = {}
         self.map_background_cache: Dict[Tuple[str, int, int], pygame.Surface] = {}
         self._load_visual_assets()
+        self.advisor = CharacterView(MR_EVIL_ASSET_FILE)
+        self.advisor.load_portrait()
         self.host_mode = host_mode
         self.port = port
         self.menu_active = host_mode and show_menu
@@ -193,6 +214,8 @@ class GameApp:
         self.layout = ResponsiveLayout.for_window(self.layout.width, self.layout.height, normalized)
         self._apply_layout_constants()
         self.creep_sprite_cache.clear()
+        self.tower_sprite_cache.clear()
+        self.tower_icon_cache.clear()
         self.arena_background_cache.clear()
         self.map_background_cache.clear()
 
@@ -207,6 +230,9 @@ class GameApp:
             return
         self.layout = ResponsiveLayout.for_window(width, height, self.active_grid_size)
         self._apply_layout_constants()
+        self.creep_sprite_cache.clear()
+        self.tower_sprite_cache.clear()
+        self.tower_icon_cache.clear()
         self._rebuild_fonts()
         self.config["video"]["window_size"] = [width, height]
         self.config["video"]["resolution"] = f"{width}x{height}"
@@ -229,6 +255,21 @@ class GameApp:
                 self.creep_assets[kind] = pygame.image.load(str(path)).convert_alpha()
             except (OSError, pygame.error) as exc:
                 self.creep_asset_errors[kind] = str(exc)
+
+        for kind, path in TOWER_ASSET_FILES.items():
+            try:
+                if not path.exists():
+                    raise FileNotFoundError(path)
+                self.tower_assets[kind] = pygame.image.load(str(path)).convert_alpha()
+            except (OSError, pygame.error) as exc:
+                self.tower_asset_errors[kind] = str(exc)
+        for kind, path in TOWER_ICON_FILES.items():
+            try:
+                if not path.exists():
+                    raise FileNotFoundError(path)
+                self.tower_icons[kind] = pygame.image.load(str(path)).convert_alpha()
+            except (OSError, pygame.error) as exc:
+                self.tower_asset_errors[f"icon:{kind}"] = str(exc)
 
         for path in ARENA_BACKGROUND_CANDIDATES:
             try:
@@ -257,6 +298,37 @@ class GameApp:
             target_size = (max(1, int(round(source.get_width() * scale))), target_height)
             self.creep_sprite_cache[key] = pygame.transform.smoothscale(source, target_size)
         return self.creep_sprite_cache[key]
+
+    def _tower_sprite(self, kind: str) -> Optional[pygame.Surface]:
+        """Return a cached transparent sprite for a current grid-cell size."""
+        source = self.tower_assets.get(kind)
+        if source is None:
+            return None
+        key = (kind, int(CELL), self.active_grid_size)
+        if key not in self.tower_sprite_cache:
+            target = max(18, int(round(CELL * 0.84)))
+            scale = min(target / source.get_width(), target / source.get_height())
+            target_size = (
+                max(1, int(round(source.get_width() * scale))),
+                max(1, int(round(source.get_height() * scale))),
+            )
+            self.tower_sprite_cache[key] = pygame.transform.smoothscale(source, target_size)
+        return self.tower_sprite_cache[key]
+
+    def _tower_icon(self, kind: str, button_height: int) -> Optional[pygame.Surface]:
+        source = self.tower_icons.get(kind)
+        if source is None:
+            return None
+        size = max(14, min(28, button_height - 10))
+        key = (kind, size)
+        if key not in self.tower_icon_cache:
+            scale = min(size / source.get_width(), size / source.get_height())
+            target_size = (
+                max(1, int(round(source.get_width() * scale))),
+                max(1, int(round(source.get_height() * scale))),
+            )
+            self.tower_icon_cache[key] = pygame.transform.smoothscale(source, target_size)
+        return self.tower_icon_cache[key]
 
     def _draw_arena_background(self) -> bool:
         if self.arena_background is None:
@@ -322,11 +394,37 @@ class GameApp:
             return
         now = time.monotonic()
         active = self.evil_comment
-        if active and now < self.evil_comment_until and int(active.get("priority", 0)) > int(comment.get("priority", 0)):
+        if active and now < self.evil_comment_until:
+            active_priority = int(active.get("priority", 0))
+            new_priority = int(comment.get("priority", 0))
+            # Critical messages are retained in a small serial queue.  This
+            # avoids contradictory simultaneous game-over text while making
+            # the third-loss line reliably visible after the final verdict.
+            if new_priority <= active_priority:
+                if new_priority >= 85:
+                    self._queue_pending_evil_comment(comment)
+                return
+            if active_priority >= 85 and event != "game_over":
+                self._queue_pending_evil_comment(active)
+        self._activate_evil_comment(comment, now)
+
+    def _queue_pending_evil_comment(self, comment: Dict[str, object]) -> None:
+        if any(item.get("id") == comment.get("id") for item in self._evil_pending):
             return
+        self._evil_pending.append(comment)
+        self._evil_pending.sort(key=lambda item: int(item.get("priority", 0)), reverse=True)
+
+    def _activate_evil_comment(self, comment: Dict[str, object], now: Optional[float] = None) -> None:
+        now = time.monotonic() if now is None else now
         self.evil_comment = comment
         self.evil_comment_started = now
-        self.evil_comment_until = now + (8.0 if int(comment.get("priority", 0)) >= 85 else 6.0)
+        priority = int(comment.get("priority", 0))
+        text_length = len(str(comment.get("text", "")))
+        duration = 4.5 + min(7.0, text_length * 0.028)
+        if priority >= 85:
+            duration += 2.5
+        self.evil_comment_until = now + duration
+        self.advisor.present(int(comment.get("stage", 1)), priority, now)
 
     def _record_action_comment(self, action: Dict, ok: bool, message: str, before: Optional[Dict] = None) -> None:
         kind = action.get("type")
@@ -1163,7 +1261,8 @@ class GameApp:
         self._menu_button("start", pygame.Rect(right_x + 20, bottom - 64, right_w - 40, 50), "IMPERIUM STARTEN", True)
         if self.evil_comment is None:
             self._queue_evil_comment("corporate")
-        self._draw_evil_commentary()
+        # The advisor dock belongs to the game HUD below the board.  Drawing
+        # it over the configuration menu would cover the primary start action.
         self._text("Klick oder Tastatur · 1–3 Schwierigkeit · B Modus · Tab Koop · Enter Start", (width // 2, height - 18), MUTED, self.small, "midbottom")
 
     def _draw_join_dialog(self) -> None:
@@ -1322,9 +1421,12 @@ class GameApp:
                 wave_text = f"WELLE {self.current['wave']}  ·  NÄCHSTE IN {self.current['next_wave_in']:.1f}s"
             else:
                 wave_text = f"WELLE {self.current['wave']}" + (f"  ·  {self.current['spawn_remaining']} im Anmarsch" if self.current['wave_active'] else "  ·  Bereit")
+            if self.layout.compact:
+                wave_text = f"WELLE {self.current['wave']}" + (" · aktiv" if self.current["wave_active"] else " · bereit")
             self._text(wave_text, (info_x + 270, 19), TEXT, self.small)
             self._text(f"Tempo {self.game_speed:.0f}x", (width - 300, self.layout.header - 24), MUTED, self.small)
-            self._text(self.current.get("mode_name", ""), (width - 300, 15), (187, 115, 255), self.small)
+            if not self.layout.compact:
+                self._text(self.current.get("mode_name", ""), (width - 300, 15), (187, 115, 255), self.small)
             players = int(self.current.get("players", 1))
             share = self.current.get("resource_share_percent", 100.0)
             player_label = f"{players} SPIELER · {share:.0f}% RESSOURCENANTEIL" if players > 1 else "1 SPIELER"
@@ -1526,23 +1628,33 @@ class GameApp:
             cell = tuple(tower["cell"])
             center = self._screen_pos(cell)
             spec = TOWER_DEFS[tower["kind"]]
-            pygame.draw.circle(self.screen, (21, 30, 38), center, spec["radius"] + 5)
-            pygame.draw.circle(self.screen, spec["color"], center, spec["radius"])
-            if tower["kind"] in ("archer", "mg"):
-                pygame.draw.polygon(self.screen, (237, 252, 220), [(center[0],center[1]-11),(center[0]-7,center[1]+9),(center[0]+7,center[1]+9)])
-            elif tower["kind"] in ("cannon", "artillery"):
-                pygame.draw.rect(self.screen, (78, 56, 47), (center[0]-4, center[1]-15, 9, 20), border_radius=3)
-            elif tower["kind"] in ("frost", "laser"):
-                pygame.draw.circle(self.screen, (222, 251, 255), center, 6)
-            elif tower["kind"] == "support":
-                pygame.draw.circle(self.screen, (255, 240, 148), center, 8, 2)
+            sprite = self._tower_sprite(tower["kind"])
+            sprite_rect: Optional[pygame.Rect] = None
+            if sprite is not None:
+                sprite_rect = sprite.get_rect(center=center)
+                self.screen.blit(sprite, sprite_rect)
             else:
-                pygame.draw.line(self.screen, (250, 236, 255), (center[0]-8,center[1]+6), (center[0]+8,center[1]-6), 3)
-                pygame.draw.line(self.screen, (250, 236, 255), (center[0]-8,center[1]-6), (center[0]+8,center[1]+6), 3)
+                # Legacy types and absent optional assets intentionally retain
+                # the original geometry rather than borrowing a wrong sprite.
+                pygame.draw.circle(self.screen, (21, 30, 38), center, spec["radius"] + 5)
+                pygame.draw.circle(self.screen, spec["color"], center, spec["radius"])
+                if tower["kind"] in ("archer", "mg"):
+                    pygame.draw.polygon(self.screen, (237, 252, 220), [(center[0],center[1]-11),(center[0]-7,center[1]+9),(center[0]+7,center[1]+9)])
+                elif tower["kind"] in ("cannon", "artillery"):
+                    pygame.draw.rect(self.screen, (78, 56, 47), (center[0]-4, center[1]-15, 9, 20), border_radius=3)
+                elif tower["kind"] in ("frost", "laser"):
+                    pygame.draw.circle(self.screen, (222, 251, 255), center, 6)
+                elif tower["kind"] == "support":
+                    pygame.draw.circle(self.screen, (255, 240, 148), center, 8, 2)
+                else:
+                    pygame.draw.line(self.screen, (250, 236, 255), (center[0]-8,center[1]+6), (center[0]+8,center[1]-6), 3)
+                    pygame.draw.line(self.screen, (250, 236, 255), (center[0]-8,center[1]-6), (center[0]+8,center[1]+6), 3)
             if tower["id"] == self.selected_tower:
-                pygame.draw.circle(self.screen, SELECT, center, spec["radius"] + 8, 2)
+                selection_radius = max(spec["radius"] + 8, (max(sprite_rect.size) // 2 + 4) if sprite_rect else 0)
+                pygame.draw.circle(self.screen, SELECT, center, selection_radius, 2)
+            marker_y = (sprite_rect.bottom + 4) if sprite_rect else (center[1] + spec["radius"] + 8)
             for pip in range(tower["level"]):
-                pygame.draw.circle(self.screen, GOLD, (center[0] - 7 + pip * 7, center[1] + spec["radius"] + 8), 2)
+                pygame.draw.circle(self.screen, GOLD, (center[0] - 7 + pip * 7, marker_y), 2)
         for enemy in self.current["enemies"]:
             spec = ENEMY_DEFS[enemy["kind"]]
             center = self._screen_pos((enemy["x"], enemy["y"]))
@@ -1584,8 +1696,8 @@ class GameApp:
         pygame.draw.line(self.screen, (61, 82, 94), (x+10,y+70), (x+w-10,y+70))
         self._text("BAUEN", (x + 12, y + 82), TEXT, self.small)
         self.button_rects = {}
-        button_h = 33 if self.layout.compact else 39
-        button_step = button_h + 5
+        button_h = 27 if self.layout.compact else 39
+        button_step = button_h + (3 if self.layout.compact else 5)
         for i, tower_type in enumerate(TOWER_TYPES):
             spec = TOWER_DEFS[tower_type]
             rect = pygame.Rect(x + 10, y + 102 + i * button_step, w - 20, button_h)
@@ -1593,7 +1705,11 @@ class GameApp:
             fill = (59, 77, 87) if tower_type == self.selected_build else PANEL_DARK
             pygame.draw.rect(self.screen, fill, rect, border_radius=5)
             pygame.draw.rect(self.screen, spec["color"], rect, 2, border_radius=5)
-            pygame.draw.circle(self.screen, spec["color"], (rect.x + 17, rect.centery), 9)
+            icon = self._tower_icon(tower_type, button_h)
+            if icon is None:
+                pygame.draw.circle(self.screen, spec["color"], (rect.x + 17, rect.centery), 9)
+            else:
+                self.screen.blit(icon, icon.get_rect(center=(rect.x + 17, rect.centery)))
             locked = tower_type == "laser" and "tech_laser" not in self.current.get("research", [])
             label = f"{i+1}  {spec['name']}" + (" · gesperrt" if locked else "")
             self._text(label, (rect.x + 32, rect.y + 3), MUTED if locked else TEXT, self.small)
@@ -1607,6 +1723,33 @@ class GameApp:
             self.hover_tower_since = now
         if hovered and now - self.hover_tower_since >= float(self.config["text"].get("tooltip_seconds", 2.0)):
             self._draw_tower_tooltip(hovered, self.button_rects[hovered])
+        if self.layout.compact:
+            # Megalomania's investment slider is an actionable control, not
+            # auxiliary information.  Reserve its full card even on the
+            # smallest layout so the controls never become unreachable.
+            if self.current.get("mode") == "big_combo":
+                preview_h = 174
+                preview_y = y + h - preview_h - 8
+                self._side_preview_rect = pygame.Rect(x + 10, preview_y, w - 20, preview_h)
+                self.wave_start_rect = pygame.Rect(0, 0, 0, 0)
+                self._draw_combo_controls()
+                return
+            # A 800x600 side panel cannot hold five build controls, detailed
+            # tower statistics and the full wave card simultaneously.  Keep
+            # the actionable controls visible and use a concise wave state.
+            compact_y = y + h - 54
+            pygame.draw.line(self.screen, (61, 82, 94), (x + 10, compact_y - 6), (x + w - 10, compact_y - 6))
+            if self.current.get("first_wave_start_required"):
+                self.wave_start_rect = pygame.Rect(x + 10, compact_y, w - 20, 28)
+                pygame.draw.rect(self.screen, (66, 92, 78), self.wave_start_rect, border_radius=4)
+                pygame.draw.rect(self.screen, (121, 228, 169), self.wave_start_rect, 1, border_radius=4)
+                self._text("Start erste Welle", self.wave_start_rect.center, TEXT, self.small, "center")
+            else:
+                self.wave_start_rect = pygame.Rect(0, 0, 0, 0)
+                wave_hint = "[LEER] Welle" if self.current.get("mode") == "classic" else "Nächste Welle automatisch"
+                self._text(wave_hint, (x + 12, compact_y + 8), MANA, self.small)
+                self._text("[T] Forschung · [U] Upgrade", (x + 12, compact_y + 25), MUTED, self.small)
+            return
         detail_y = y + 102 + 5 * button_step + 12
         pygame.draw.line(self.screen, (61, 82, 94), (x+10,detail_y-10), (x+w-10,detail_y-10))
         tower = next((t for t in self.current["towers"] if t["id"] == self.selected_tower), None)
@@ -1813,60 +1956,84 @@ class GameApp:
             pygame.draw.rect(self.screen, SELECT, self.research_buy_rect, 1, border_radius=4)
             self._text("Forschung kaufen", self.research_buy_rect.center, TEXT, self.small, "center")
 
-    def _draw_evil_commentary(self) -> Optional[pygame.Rect]:
-        if self.evil_comment is None:
-            return None
-        now = time.monotonic()
-        if now >= self.evil_comment_until:
-            self.evil_comment = None
-            return None
-        width = self.layout.width
-        footer_y = self.layout.height - self.layout.footer
-        box_w = min(520, max(330, width // 3))
-        if self.layout.compact:
-            box_w = min(box_w, 430)
-        rect = pygame.Rect(self.layout.margin, footer_y + 4, box_w, max(40, self.layout.footer - 8))
-        alpha = 255
-        if self.evil.animations:
-            age = now - self.evil_comment_started
-            fade_in = min(1.0, age / 0.22)
-            fade_out = min(1.0, max(0.0, (self.evil_comment_until - now) / 0.45))
-            alpha = max(80, int(255 * min(fade_in, fade_out)))
-        layer = pygame.Surface(rect.size, pygame.SRCALPHA)
-        layer.fill((24, 13, 43, min(235, alpha)))
-        pygame.draw.rect(layer, (187, 115, 255, alpha), layer.get_rect(), 1, border_radius=6)
-        pygame.draw.line(layer, (255, 171, 67, alpha), (8, 2), (min(110, rect.w - 8), 2), 2)
-        portrait_center = (28, rect.h // 2 + 2)
-        pygame.draw.polygon(layer, (187, 115, 255, alpha), [(portrait_center[0] - 14, portrait_center[1] - 10), (portrait_center[0] - 10, portrait_center[1] - 22), (portrait_center[0] - 3, portrait_center[1] - 12)])
-        pygame.draw.polygon(layer, (187, 115, 255, alpha), [(portrait_center[0] + 14, portrait_center[1] - 10), (portrait_center[0] + 10, portrait_center[1] - 22), (portrait_center[0] + 3, portrait_center[1] - 12)])
-        pygame.draw.circle(layer, (187, 115, 255, alpha), portrait_center, 15)
-        pygame.draw.circle(layer, (255, 171, 67, alpha), (portrait_center[0] - 5, portrait_center[1] - 2), 2)
-        pygame.draw.circle(layer, (255, 171, 67, alpha), (portrait_center[0] + 5, portrait_center[1] - 2), 2)
-        self.screen.blit(layer, rect)
-        text_font = self.small
-        if self.evil.text_size == "large":
-            text_font = self.font
-        elif self.evil.text_size == "small":
-            text_font = self.small
-        text_x = rect.x + 52
-        self._text("MR. EVIL · " + str(self.evil_comment.get("expression", "geschäftlich optimistisch")).upper(), (text_x, rect.y + 6), (255, 171, 67), self.small)
-        content = str(self.evil_comment.get("text", ""))
-        max_width = rect.w - 64
+    @staticmethod
+    def _wrap_advisor_text(content: str, font: pygame.font.Font, max_width: int) -> List[str]:
+        """Word-wrap without discarding a final line from long dialogue."""
         lines: List[str] = []
         current_line = ""
         for word in content.split():
             candidate = f"{current_line} {word}".strip()
-            if text_font.size(candidate)[0] > max_width and current_line:
+            if current_line and font.size(candidate)[0] > max_width:
                 lines.append(current_line)
                 current_line = word
             else:
                 current_line = candidate
         if current_line:
             lines.append(current_line)
-        for index, line in enumerate(lines[:2]):
-            image = text_font.render(line, True, TEXT)
-            image.set_alpha(alpha)
-            self.screen.blit(image, (text_x, rect.y + 20 + index * max(11, text_font.get_height() - 2)))
+        return lines or [""]
+
+    def _draw_evil_commentary(self) -> Optional[pygame.Rect]:
+        """Draw the persistent advisor dock; retained as the old public hook."""
+        now = time.monotonic()
+        if self.evil_comment is not None and now >= self.evil_comment_until:
+            if self._evil_pending:
+                self._activate_evil_comment(self._evil_pending.pop(0), now)
+            else:
+                self.evil_comment = None
+        self.advisor.update(self.evil_comment is not None, now)
+        rect = pygame.Rect(self.layout.advisor_rect)
+        pygame.draw.rect(self.screen, (26, 14, 43), rect, border_radius=8)
+        pygame.draw.rect(self.screen, (90, 59, 126), rect, 1, border_radius=8)
+
+        accent = self.advisor.color
+        pygame.draw.line(self.screen, (255, 171, 67), (rect.x + 12, rect.y + 3), (min(rect.right - 12, rect.x + 170), rect.y + 3), 2)
+        portrait_w = min(166 if not self.layout.compact else 112, max(96, rect.h))
+        portrait_rect = pygame.Rect(rect.x + 8, rect.y + 8, portrait_w, rect.h - 16)
+        pygame.draw.rect(self.screen, (17, 14, 29), portrait_rect, border_radius=6)
+        pygame.draw.rect(self.screen, accent, portrait_rect, 1, border_radius=6)
+        label_h = 32 if self.layout.compact else 38
+        image_rect = portrait_rect.inflate(-10, -label_h - 8)
+        alpha, offset_y, _ = self.advisor.visual_style(now, self.evil.animations)
+        portrait = self.advisor.portrait_for(image_rect.size)
+        if portrait is not None:
+            portrait = portrait.copy()
+            portrait.set_alpha(alpha)
+            rendered = portrait.get_rect(midbottom=(image_rect.centerx, image_rect.bottom + offset_y))
+            self.screen.blit(portrait, rendered)
+        else:
+            # Do not fabricate a substitute character: this status stays
+            # deliberately textual until the approved source image is added.
+            self._text("REFERENZ", image_rect.center, MUTED, self.small, "midbottom")
+            self._text("FEHLT", (image_rect.centerx, image_rect.centery + 4), MUTED, self.small, "midtop")
+        self._text("MR. EVIL", (portrait_rect.centerx, portrait_rect.bottom - label_h + 3), (255, 171, 67), self.small, "midtop")
+        self._text(self.advisor.emotion.upper(), (portrait_rect.centerx, portrait_rect.bottom - 4), accent, self.small, "midbottom")
+
+        bubble = pygame.Rect(portrait_rect.right + 16, rect.y + 12, rect.right - portrait_rect.right - 28, rect.h - 24)
+        pygame.draw.polygon(self.screen, (48, 31, 68), [(bubble.x - 12, bubble.centery - 8), (bubble.x, bubble.centery - 2), (bubble.x, bubble.centery + 10)])
+        pygame.draw.polygon(self.screen, accent, [(bubble.x - 12, bubble.centery - 8), (bubble.x, bubble.centery - 2), (bubble.x, bubble.centery + 10)], 1)
+        pygame.draw.rect(self.screen, (48, 31, 68), bubble, border_radius=8)
+        pygame.draw.rect(self.screen, accent, bubble, 1, border_radius=8)
+        text_font = self.font if self.evil.text_size == "large" else self.small
+        if self.evil.text_size == "small":
+            text_font = pygame.font.SysFont("dejavusans", max(9, self.small.get_height() - 1))
+        header = f"MR. EVIL · {self.advisor.emotion.upper()}"
+        self._text(header, (bubble.x + 12, bubble.y + 7), (255, 188, 93), self.small)
+        if self.evil_comment is None:
+            self._text("Die Kennzahlen werden überwacht.", (bubble.x + 12, bubble.y + 29), MUTED, text_font)
+            return rect
+        content = str(self.evil_comment.get("text", ""))
+        lines = self._wrap_advisor_text(content, text_font, bubble.w - 24)
+        line_height = text_font.get_linesize()
+        per_page = max(1, (bubble.h - 36) // line_height)
+        page_count = max(1, (len(lines) + per_page - 1) // per_page)
+        required_until = self.evil_comment_started + page_count * 3.4 + (2.5 if int(self.evil_comment.get("priority", 0)) >= 85 else 0.0)
+        self.evil_comment_until = max(self.evil_comment_until, required_until)
+        page = min(page_count - 1, int((now - self.evil_comment_started) / 3.4))
+        page_lines = lines[page * per_page:(page + 1) * per_page]
+        for index, line in enumerate(page_lines):
+            self._text(line, (bubble.x + 12, bubble.y + 30 + index * line_height), TEXT, text_font)
+        if page_count > 1:
+            self._text(f"{page + 1}/{page_count}", (bubble.right - 10, bubble.bottom - 7), accent, self.small, "bottomright")
         return rect
 
     def _draw_footer(self) -> None:
@@ -1874,7 +2041,6 @@ class GameApp:
         footer_y = height - self.layout.footer
         pygame.draw.rect(self.screen, PANEL_DARK, (0, footer_y, width, self.layout.footer))
         pygame.draw.line(self.screen, (56, 83, 98), (0, footer_y), (width, footer_y), 1)
-        commentary_rect = self._draw_evil_commentary()
         message = ""
         if self.paused:
             message = "PAUSE · [P] fortsetzen"
@@ -1882,11 +2048,14 @@ class GameApp:
             message = self.local_notice
         elif self.current:
             message = self.current.get("status", "")
-        if commentary_rect is None:
-            self._text(message[: max(20, width // 10)], (self.layout.margin, footer_y + 12), (245, 230, 170) if message else MUTED, self.small)
+        if self.layout.compact and len(message) > 24:
+            message = message[:21].rstrip() + "…"
+        self._text(message[: max(20, width // 11)], (self.layout.margin, footer_y + 12), (245, 230, 170) if message else MUTED, self.small)
         button_y = footer_y + max(8, (self.layout.footer - 32) // 2)
         right = width - self.layout.margin
-        self.main_menu_rect = pygame.Rect(right - 176, button_y, 176, 30)
+        compact = self.layout.compact
+        main_width = 132 if compact else 176
+        self.main_menu_rect = pygame.Rect(right - main_width, button_y, main_width, 30)
         pygame.draw.rect(self.screen, (47, 57, 64), self.main_menu_rect, border_radius=4)
         pygame.draw.rect(self.screen, (102, 125, 137), self.main_menu_rect, 1, border_radius=4)
         self._text("Zum Hauptmenü", self.main_menu_rect.center, TEXT, self.small, "center")
@@ -1894,27 +2063,32 @@ class GameApp:
         pygame.draw.rect(self.screen, (47, 57, 64), self.options_rect, border_radius=4)
         pygame.draw.rect(self.screen, (102, 125, 137), self.options_rect, 1, border_radius=4)
         self._text("O", self.options_rect.center, TEXT, self.small, "center")
-        self.research_open_rect = pygame.Rect(self.main_menu_rect.x - 180, button_y, 120, 30)
+        research_width = 108 if compact else 120
+        self.research_open_rect = pygame.Rect(self.options_rect.x - research_width - 8, button_y, research_width, 30)
         pygame.draw.rect(self.screen, (47, 38, 67), self.research_open_rect, border_radius=4)
         pygame.draw.rect(self.screen, SELECT, self.research_open_rect, 1, border_radius=4)
         self._text("Forschung [T]", self.research_open_rect.center, TEXT, self.small, "center")
         self.speed_rects = {}
-        self._text("Tempo", (max(250, width // 2 - 140), footer_y + 15), MUTED, self.small, "midleft")
-        speed_x = max(310, width // 2 - 90)
+        speed_x = self.layout.margin + (200 if compact else max(294, width // 2 - self.layout.margin - 76))
+        self._text("Tempo", (speed_x - 8, footer_y + 15), MUTED, self.small, "midright")
         for index, speed in enumerate((1, 2, 3)):
-            rect = pygame.Rect(speed_x + index * 52, button_y, 46, 30)
+            step = 44 if compact else 52
+            speed_width = 40 if compact else 46
+            rect = pygame.Rect(speed_x + index * step, button_y, speed_width, 30)
             self.speed_rects[speed] = rect
             active = self.game_speed == speed
             pygame.draw.rect(self.screen, (66, 92, 78) if active else (47, 57, 64), rect, border_radius=4)
             pygame.draw.rect(self.screen, SELECT if active else (102, 125, 137), rect, 1, border_radius=4)
             self._text(f"{speed}x", rect.center, TEXT, self.small, "center")
-        self.planning_confirm_rect = pygame.Rect(speed_x + 170, button_y, 132, 30)
-        self.planning_cancel_rect = pygame.Rect(speed_x + 310, button_y, 132, 30)
+        plan_x = speed_x + (136 if compact else 170)
+        self.planning_confirm_rect = pygame.Rect(plan_x, button_y, 60 if compact else 132, 30)
+        self.planning_cancel_rect = pygame.Rect(self.planning_confirm_rect.right + 6, button_y, 56 if compact else 132, 30)
         if self.planning_mode:
-            for rect, label in ((self.planning_confirm_rect, "Bauplan bauen"), (self.planning_cancel_rect, "Verwerfen")):
-                pygame.draw.rect(self.screen, (66, 92, 78) if label == "Bauplan bauen" else (55, 57, 60), rect, border_radius=4)
+            labels = ((self.planning_confirm_rect, "Bauen" if compact else "Bauplan bauen"), (self.planning_cancel_rect, "X" if compact else "Verwerfen"))
+            for rect, label in labels:
+                pygame.draw.rect(self.screen, (66, 92, 78) if label in {"Bauplan bauen", "Bauen"} else (55, 57, 60), rect, border_radius=4)
                 pygame.draw.rect(self.screen, SELECT, rect, 1, border_radius=4)
-                self._text(f"{label} ({len(self.planned_builds)})" if label == "Bauplan bauen" else label, rect.center, TEXT, self.small, "center")
+                self._text(f"{label} ({len(self.planned_builds)})" if label in {"Bauplan bauen", "Bauen"} else label, rect.center, TEXT, self.small, "center")
         if self.current and self.current.get("game_over"):
             overlay = pygame.Surface((BOARD_W, BOARD_H), pygame.SRCALPHA)
             overlay.fill((22, 12, 17, 175))
@@ -1951,6 +2125,7 @@ class GameApp:
             self._draw_board()
             self._draw_towers_and_enemies()
             self._draw_panel()
+            self._draw_evil_commentary()
             self._draw_footer()
         else:
             self._text("Verbindung wird hergestellt …", (WINDOW_W // 2, WINDOW_H // 2), TEXT, self.title, "center")

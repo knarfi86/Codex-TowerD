@@ -56,7 +56,9 @@ Die gewählte Firewall muss eingehende TCP-Verbindungen für den verwendeten Por
 | `M` | Karte wechseln, solange noch keine Welle gestartet wurde; nach Niederlage Neustart |
 | `Esc` | Fenster schließen |
 
-Mr. Evil kommentiert wichtige Ereignisse lokal und ereignisgesteuert. Unter `O → Gameplay` lassen sich Häufigkeit (`Aus`, `Selten`, `Normal`, `Häufig`), Animationen und Kommentartextgröße einstellen. Kritische Warnungen wie Durchbrüche und Game Over bleiben unabhängig von der Häufigkeit sichtbar. Die Kommentare werden nicht an LAN-Clients übertragen und verändern weder Regeln noch Wellenzufall.
+Mr. Evil kommentiert wichtige Ereignisse lokal und ereignisgesteuert. Unter dem Spielfeld zeigt ein dauerhaft reserviertes Advisor-Dock seine aktuelle Emotionsstufe, eine Comic-Sprechblase und bei langen Texten automatisch weiterblätternde Seiten. Unter `O → Gameplay` lassen sich Häufigkeit (`Aus`, `Selten`, `Normal`, `Häufig`), Animationen und Kommentartextgröße einstellen. Kritische Warnungen wie Durchbrüche und Game Over bleiben unabhängig von der Häufigkeit sichtbar. Die Kommentare werden nicht an LAN-Clients übertragen und verändern weder Regeln noch Wellenzufall. Das freigestellte, verbindliche Charakterportrait gehört nach `assets/characters/mr_evil.png`; ohne diese bereitgestellte Referenz zeigt das Dock absichtlich keinen Ersatzcharakter.
+
+Die fünf aktiven Bau-Typen (`MG`, `Artillerie`, `Laser`, `Tesla`, `Support`) verwenden ihre transparenten Sprites aus `assets/towers/` sowie passende Icons aus `assets/towers/icons/`. Fehlende Einzeldateien und die älteren Typen (`Bogenschütze`, `Kanone`, `Frost`) fallen ohne Regeländerung auf die vorhandene geometrische Darstellung zurück.
 
 Im Hauptmenü wechseln `A`/`D` oder die Pfeiltasten die Karte, `Tab` schaltet Singleplayer/Koop-LAN um, `1`-`3` wählen den Schwierigkeitsgrad und `Enter` startet die Partie.
 
@@ -96,6 +98,7 @@ game/
   research.py             Forschungsbaum und Freischaltstatus
   ui_data.py              Modus-, Karten- und Mr.-Evil-Texte
   evil_commentary.py      Ereignisgesteuerte Mr.-Evil-Dialoge, Gedächtnis und Auswahlregeln
+  advisor.py               Portrait-unabhängige CharacterView, Emotionen und Animationszustände
   config.py               Robuste lokale JSON-Konfiguration
   state.py                Autoritative Spielsimulation und Aktionsprüfung
   network.py              Thread-basierter TCP-Host/Client, JSON-Zeilenprotokoll

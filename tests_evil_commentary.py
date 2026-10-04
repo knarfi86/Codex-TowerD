@@ -4,6 +4,9 @@ import os
 
 os.environ.setdefault("SDL_VIDEODRIVER", "dummy")
 
+import pygame
+
+from game.advisor import CharacterState, CharacterView
 from game.app import GameApp
 from game.config import load_config
 from game.evil_commentary import DIALOGUES, EvilCommentary, dialogue_count
@@ -60,4 +63,80 @@ def test_commentary_box_and_settings_follow_resize(tmp_path) -> None:
     finally:
         app.close()
         os.environ.pop("CREEPGRID_CONFIG", None)
+
+
+def test_loss_memory_counts_normal_and_all_in_once_and_resets_round_state() -> None:
+    commentary = EvilCommentary(seed=13)
+    game_over = {"lives": 0, "max_lives": 20, "game_over": True}
+    commentary.trigger("all_investment", {"lives": 20, "max_lives": 20}, {"percent": 100}, force=True, now=1.0)
+    assert commentary.memory["all_in"] is True
+    commentary.trigger("game_over_after_all_in", game_over, force=True, now=2.0)
+    commentary.trigger("game_over_after_all_in", game_over, force=True, now=3.0)
+    assert commentary.memory["losses"] == 1
+    commentary.trigger("restart", {"lives": 20, "max_lives": 20}, force=True, now=4.0)
+    assert commentary.memory["all_in"] is False
+    assert commentary.memory["sold_towers"] == 0
+    assert commentary.memory["losses"] == 1
+    commentary.trigger("game_over", game_over, force=True, now=5.0)
+    assert commentary.memory["losses"] == 2
+
+
+def test_third_loss_dialogue_is_available_after_three_separate_runs() -> None:
+    commentary = EvilCommentary(seed=3)
+    game_over = {"lives": 0, "max_lives": 20, "game_over": True}
+    for index in range(3):
+        commentary.trigger("game_over", game_over, force=True, now=10.0 + index * 4)
+        if index < 2:
+            commentary.trigger("restart", {"lives": 20, "max_lives": 20}, force=True, now=12.0 + index * 4)
+    assert commentary.memory["losses"] == 3
+    line = commentary.trigger("three_losses", game_over, force=True, now=30.0)
+    assert line is not None
+    assert line["stage"] == 5
+
+
+def test_critical_third_loss_is_queued_behind_game_over(tmp_path) -> None:
+    config_path = tmp_path / "priority.json"
+    os.environ["CREEPGRID_CONFIG"] = str(config_path)
+    app = GameApp(host_mode=True, show_menu=False, port=18784)
+    try:
+        snapshot = {"lives": 0, "max_lives": 20, "game_over": True}
+        app.evil.memory["losses"] = 3
+        app._queue_evil_comment("game_over", force=True, snapshot=snapshot)
+        assert app.evil_comment is not None and app.evil_comment["event"] == "game_over"
+        app._queue_evil_comment("three_losses", force=True, snapshot=snapshot)
+        assert app.evil_comment["event"] == "game_over"
+        assert any(item["event"] == "three_losses" for item in app._evil_pending)
+    finally:
+        app.close()
+        os.environ.pop("CREEPGRID_CONFIG", None)
+
+
+def test_character_view_loads_transparent_portrait_and_static_animation_mode(tmp_path) -> None:
+    path = tmp_path / "mr_evil.png"
+    source = pygame.Surface((18, 20), pygame.SRCALPHA)
+    pygame.draw.rect(source, (90, 50, 130, 255), pygame.Rect(4, 3, 10, 15), border_radius=2)
+    pygame.image.save(source, path)
+    view = CharacterView(path)
+    view.load_portrait()
+    assert view.portrait is not None
+    assert view.portrait.get_at((0, 0)).a == 0
+    view.present(4, 90, now=10.0)
+    alpha, offset, _ = view.visual_style(10.1, animations=False)
+    assert (alpha, offset, view.state) == (255, 0, CharacterState.REACTING)
+    assert view.emotion == "Panisch"
+
+
+def test_character_view_exposes_all_five_stage_emotions() -> None:
+    view = CharacterView(__file__)
+    emotions = []
+    for stage in range(1, 6):
+        view.present(stage, 40, now=float(stage))
+        emotions.append(view.emotion)
+    assert emotions == ["Selbstgefällig", "Schadenfroh", "Gereizt", "Panisch", "Kontrollverlust"]
+
+
+def test_memory_updates_even_when_a_normal_comment_is_suppressed() -> None:
+    commentary = EvilCommentary(frequency="off", seed=5)
+    assert commentary.trigger("all_investment", {"lives": 20, "max_lives": 20}, {"percent": 100}, now=1.0) is None
+    assert commentary.memory["all_in"] is True
 

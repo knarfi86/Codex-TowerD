@@ -296,6 +296,7 @@ class EvilCommentary:
         self.recent: Deque[str] = deque(maxlen=5)
         self.event_last_at: Dict[str, float] = {}
         self.memory: Dict[str, Any] = {"all_in": False, "sold_towers": 0, "losses": 0, "runs": 0}
+        self._loss_recorded_for_run = False
         self._rng = random.Random(seed) if seed is not None else random.SystemRandom()
 
     def configure(self, frequency: str, animations: bool, text_size: str) -> None:
@@ -320,14 +321,21 @@ class EvilCommentary:
 
     def remember(self, event: str, context: Optional[Mapping[str, Any]] = None) -> None:
         context = context or {}
+        if event == "restart":
+            # Keep application-wide results while making a new run unable to
+            # inherit its predecessor's investment and sale decisions.
+            losses = int(self.memory.get("losses", 0))
+            runs = int(self.memory.get("runs", 0)) + 1
+            self.memory = {"all_in": False, "sold_towers": 0, "losses": losses, "runs": runs}
+            self._loss_recorded_for_run = False
+            return
         if event == "all_investment" or int(context.get("percent", 0)) >= 100:
             self.memory["all_in"] = True
         if event in {"tower_sold", "last_tower_sold"}:
             self.memory["sold_towers"] = int(self.memory.get("sold_towers", 0)) + 1
-        if event == "game_over":
+        if event in {"game_over", "game_over_after_all_in"} and not self._loss_recorded_for_run:
             self.memory["losses"] = int(self.memory.get("losses", 0)) + 1
-        if event == "restart":
-            self.memory["runs"] = int(self.memory.get("runs", 0)) + 1
+            self._loss_recorded_for_run = True
 
     def _allowed(self, dialogue: Dialogue, now: float, force: bool) -> bool:
         if dialogue.id in self.recent:

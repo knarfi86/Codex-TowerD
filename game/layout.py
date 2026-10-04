@@ -16,6 +16,7 @@ class ResponsiveLayout:
     height: int
     header: int
     footer: int
+    advisor_height: int
     margin: int
     gap: int
     side_width: int
@@ -48,8 +49,12 @@ class ResponsiveLayout:
         margin = clamp(round(min(width, height) * 0.022), 16, 32)
         gap = clamp(round(width * 0.014), 14, 28)
         compact = width < 1180 or height < 760
+        # The dock has a stable reservation, so dialogue length cannot move
+        # build cells or footer controls.  Compact layouts keep enough room
+        # for a portrait and at least three readable dialogue lines.
+        advisor_height = clamp(round(height * (0.185 if compact else 0.17)), 108, 184)
         side_width = clamp(round(width * (0.23 if compact else 0.205)), 246, 360)
-        usable_height = max(360, height - header - footer - 2 * margin)
+        usable_height = max(288, height - header - footer - advisor_height - 2 * margin)
         usable_width = max(360, width - 2 * margin - gap - side_width)
         cell = max(24, min(92, usable_width // grid_cols, usable_height // grid_rows))
         board_width = cell * grid_cols
@@ -58,12 +63,13 @@ class ResponsiveLayout:
         board_y = header + margin + max(0, (usable_height - board_height) // 2)
         panel_x = width - margin - side_width
         panel_y = header + margin
-        panel_height = height - header - footer - 2 * margin
+        panel_height = usable_height
         return cls(
             width=width,
             height=height,
             header=header,
             footer=footer,
+            advisor_height=advisor_height,
             margin=margin,
             gap=gap,
             side_width=side_width,
@@ -88,4 +94,13 @@ class ResponsiveLayout:
     @property
     def panel_rect(self) -> Tuple[int, int, int, int]:
         return (self.panel_x, self.panel_y, self.panel_width, self.panel_height)
+
+    @property
+    def advisor_rect(self) -> Tuple[int, int, int, int]:
+        return (
+            self.margin,
+            self.height - self.footer - self.advisor_height,
+            self.width - 2 * self.margin,
+            self.advisor_height,
+        )
 
