@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 import random
 from typing import Dict, List, Optional, Sequence, Tuple
 
-from .constants import ENEMY_DEFS, PRIORITIES, TOWER_DEFS
+from .constants import ENEMY_DEFS, PRIORITIES, TOWER_DEFS, boss_name_for_wave
 
 Grid = Tuple[int, int]
 
@@ -20,12 +20,20 @@ class Enemy:
     hit_flash: float = 0.0
     shield_timer: float = 0.0
     ability_timer: float = 6.0
+    boss_wave: int = 0
 
     @classmethod
-    def create(cls, eid: int, kind: str, route: Sequence[Grid], health_scale: float) -> "Enemy":
+    def create(
+        cls,
+        eid: int,
+        kind: str,
+        route: Sequence[Grid],
+        health_scale: float,
+        boss_wave: int = 0,
+    ) -> "Enemy":
         spec = ENEMY_DEFS[kind]
         hp = spec["hp"] * health_scale
-        return cls(eid=eid, kind=kind, route=route, hp=hp, max_hp=hp)
+        return cls(eid=eid, kind=kind, route=route, hp=hp, max_hp=hp, boss_wave=boss_wave)
 
     @property
     def spec(self) -> Dict:
@@ -75,6 +83,8 @@ class Enemy:
             "flying": bool(self.spec.get("flying", False)),
             "shielded": bool(self.spec.get("shield", False)),
             "abilities": list(self.spec.get("abilities", ())),
+            "boss_wave": self.boss_wave,
+            "boss_name": boss_name_for_wave(self.boss_wave) if self.spec.get("boss") else "",
         }
 
 
@@ -218,15 +228,21 @@ class WavePlan:
         if number >= 5:
             queue.extend(["siege"] * max(1, round(number / 8 * count_scale)))
         if number % 5 == 0:
-            queue.extend(["boss"] * (1 if mode == "big_combo" else 0))
             # Special waves are compositions, not only an HP multiplier.
             queue.extend(["shield", "healer", "raider", "siege"])
+        # Bosses are a deterministic every-ten-waves cadence in every mode.
+        # The five-wave special composition remains, without an extra boss.
+        if number % 10 == 0:
+            queue.append("boss")
         combo_name = "Standardformation"
         abilities: Tuple[str, ...] = ()
         if mode == "big_combo":
-            if number % 5 == 0:
+            if number % 10 == 0:
                 combo_name = "Boss-Belagerung"
                 abilities = ("Boss-Regeneration", "Schildschirm", "Belagerungsdruck")
+            elif number % 5 == 0:
+                combo_name = "Spezial-Belagerung"
+                abilities = ("Schildschirm", "Heilereskorte", "Belagerungsdruck")
             else:
                 director = random.Random(seed + number * 7919)
                 combo = director.choice(("tank", "swarm", "air", "siege"))

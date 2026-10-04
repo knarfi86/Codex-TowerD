@@ -185,6 +185,36 @@ DIALOGUES: Dict[str, Tuple[Dialogue, ...]] = {
         "Ich habe seine Bewerbung gesehen. Er verlangt weniger Gehalt als Sie.",
         "Ein Boss. Wunderbar. Jetzt haben unsere Probleme endlich eine angemessene Größe.",
     ), priority=88, cooldown=6.0, expression="gereizt")
+    , "boss_wave_10": _entries("boss_wave_10", (
+        "Die Geschäftsführung präsentiert Ihnen unser neuestes Modell. Beschwerden werden grundsätzlich ignoriert.",
+    ), priority=88, cooldown=6.0, expression="gereizt")
+    , "boss_wave_20": _entries("boss_wave_20", (
+        "Der Crystal Juggernaut kommt ohne Gewährleistung. Für Sie leider auch ohne Rückgaberecht.",
+    ), priority=88, cooldown=6.0, expression="gereizt")
+    , "boss_wave_30": _entries("boss_wave_30", (
+        "Unser Razorwing hat die Luftfahrtabteilung übernommen. Die Landebahn war ohnehin überbewertet.",
+    ), priority=88, cooldown=6.0, expression="gereizt")
+    , "boss_wave_40": _entries("boss_wave_40", (
+        "Der Repair Archon repariert sich selbst. Die Buchhaltung nennt das eine bedauerlich langlebige Investition.",
+    ), priority=88, cooldown=6.0, expression="gereizt")
+    , "boss_wave_50": _entries("boss_wave_50", (
+        "Die Entwicklungsabteilung nennt ihn unzerstörbar. Ich bevorzuge den Begriff kosteneffizient.",
+    ), priority=88, cooldown=6.0, expression="gereizt")
+    , "boss_wave_60": _entries("boss_wave_60", (
+        "Der Siege Behemoth hat eine Kündigung für Ihre Basis vorbereitet. Bitte widersprechen Sie mit Feuerkraft.",
+    ), priority=88, cooldown=6.0, expression="gereizt")
+    , "boss_wave_70": _entries("boss_wave_70", (
+        "Inferno Reaper. Die Brandschutzversicherung hat soeben ihre Geschäftszeiten beendet.",
+    ), priority=88, cooldown=6.0, expression="gereizt")
+    , "boss_wave_80": _entries("boss_wave_80", (
+        "Der Void Executioner bevorzugt kurze Meetings. Seine Agenda enthält nur einen Punkt: Sie.",
+    ), priority=88, cooldown=6.0, expression="gereizt")
+    , "boss_wave_90": _entries("boss_wave_90", (
+        "Storm Dominator meldet sich zur Übernahme. Ich hoffe, Ihre Blitzableiter sind steuerlich absetzbar.",
+    ), priority=88, cooldown=6.0, expression="gereizt")
+    , "boss_wave_100": _entries("boss_wave_100", (
+        "Sie wollten doch eine Herausforderung. Ich habe lediglich die Liefermenge angepasst.",
+    ), priority=88, cooldown=6.0, expression="gereizt")
     , "boss_defeated": _entries("boss_defeated", (
         "Die feindliche Geschäftsführung wurde erfolgreich restrukturiert.",
         "Ausgezeichnet. Seine Abfindung beträgt null Coins.",

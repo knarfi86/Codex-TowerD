@@ -86,6 +86,34 @@ ENEMY_DEFS = {
 }
 
 ENEMY_ALIASES = {"standard": "scout", "fast": "raider", "armored": "brute", "flying": "wisp"}
+
+# Boss identity is deterministic state data.  The asset key repeats after the
+# final supplied wave so endless games keep their one-boss-per-ten-waves rule.
+BOSS_WAVE_DEFS = {
+    10: {"name": "Vanguard Overlord", "asset": "boss_wave_10.png"},
+    20: {"name": "Crystal Juggernaut", "asset": "boss_wave_20.png"},
+    30: {"name": "Razorwing Sky Tyrant", "asset": "boss_wave_30.png"},
+    40: {"name": "Repair Archon", "asset": "boss_wave_40.png"},
+    50: {"name": "Aegis Fortress Titan", "asset": "boss_wave_50.png"},
+    60: {"name": "Siege Behemoth", "asset": "boss_wave_60.png"},
+    70: {"name": "Inferno Reaper", "asset": "boss_wave_70.png"},
+    80: {"name": "Void Executioner", "asset": "boss_wave_80.png"},
+    90: {"name": "Storm Dominator", "asset": "boss_wave_90.png"},
+    100: {"name": "Emperor of Evil Steel", "asset": "boss_wave_100.png"},
+}
+
+
+def boss_asset_wave_for(wave: int) -> int:
+    """Return the supplied boss-asset wave for a ten-wave boss encounter."""
+    if wave < 10 or wave % 10:
+        return 0
+    return ((wave // 10 - 1) % len(BOSS_WAVE_DEFS) + 1) * 10
+
+
+def boss_name_for_wave(wave: int) -> str:
+    asset_wave = boss_asset_wave_for(wave)
+    return BOSS_WAVE_DEFS.get(asset_wave, {"name": ENEMY_DEFS["boss"]["name"]})["name"]
+
 TOWER_TYPES = ("mg", "artillery", "laser", "tesla", "support")
 
 PRIORITIES = ("first", "strong", "near", "last")

@@ -19,6 +19,15 @@ def test_comment_archive_has_many_variants_and_unique_ids() -> None:
     assert all(len(DIALOGUES[event]) >= 3 for event in ("game_start", "tower_built", "game_over"))
 
 
+def test_each_unique_boss_has_a_specific_mr_evil_announcement() -> None:
+    events = {f"boss_wave_{wave}" for wave in range(10, 101, 10)}
+    assert events.issubset(DIALOGUES)
+    assert all(len(DIALOGUES[event]) == 1 for event in events)
+    assert "Beschwerden werden grundsätzlich ignoriert" in DIALOGUES["boss_wave_10"][0].text
+    assert "kosteneffizient" in DIALOGUES["boss_wave_50"][0].text
+    assert "Liefermenge angepasst" in DIALOGUES["boss_wave_100"][0].text
+
+
 def test_selector_avoids_recent_repeats_and_keeps_priority_warnings_when_off() -> None:
     commentary = EvilCommentary(frequency="off", seed=7)
     snapshot = {"lives": 20, "max_lives": 20, "game_over": False}

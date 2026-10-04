@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from game.constants import ENEMY_DEFS, TOWER_TYPES
+from game.constants import BOSS_WAVE_DEFS, ENEMY_DEFS, TOWER_TYPES, boss_asset_wave_for
 from game.entities import Tower, WavePlan
 from game.maps import MAPS
 from game.pathfinding import find_path
@@ -92,8 +92,9 @@ def test_big_combo_builds_role_based_special_wave_and_investment_income() -> Non
     state.wave = 4
     ok, _ = state.action({"type": "start_wave"})
     assert ok and state.wave == 5
-    assert {"boss", "shield", "healer", "siege"}.issubset(set(state.plan.queue))
-    assert "Bossfähigkeit" in state.combo_summary
+    assert {"shield", "healer", "siege"}.issubset(set(state.plan.queue))
+    assert "boss" not in state.plan.queue
+    assert "Bossfähigkeit" not in state.combo_summary
 
 
 def test_multiplayer_scales_shared_starting_resources_and_income_by_player_count() -> None:
@@ -241,9 +242,34 @@ def test_big_combo_director_is_seeded_and_changes_combinations() -> None:
     plans = [WavePlan.build(number, mode="big_combo", seed=44) for number in range(1, 5)]
     assert len({plan.combo_name for plan in plans}) >= 2
     special = WavePlan.build(5, mode="big_combo", seed=44)
-    assert special.combo_name == "Boss-Belagerung"
-    assert {"boss", "shield", "healer", "siege"}.issubset(set(special.queue))
+    assert special.combo_name == "Spezial-Belagerung"
+    assert {"shield", "healer", "siege"}.issubset(set(special.queue))
+    assert "boss" not in special.queue
     assert special.preview() == WavePlan.build(5, mode="big_combo", seed=44).preview()
+
+
+def test_each_tenth_wave_gets_exactly_one_deterministic_boss_in_every_mode() -> None:
+    for mode in ("classic", "big_combo", "bounty_hunter"):
+        for wave in (5, 10, 15, 20, 100, 110):
+            plan = WavePlan.build(wave, mode=mode, seed=47)
+            assert plan.queue.count("boss") == (1 if wave % 10 == 0 else 0)
+    assert boss_asset_wave_for(100) == 100
+    assert boss_asset_wave_for(110) == 10
+    assert set(BOSS_WAVE_DEFS) == set(range(10, 101, 10))
+
+
+def test_spawned_boss_keeps_its_wave_identity_in_network_snapshot() -> None:
+    state = GameState(mode="big_combo")
+    state.wave = 9
+    assert state.action({"type": "start_wave"})[0]
+    assert state.plan is not None and state.plan.number == 10
+    state.plan.queue = ["boss"]
+    state.plan.spawn_clock = 0.0
+    state.tick(0.01)
+    snapshot = state.snapshot()
+    boss = next(enemy for enemy in snapshot["enemies"] if enemy["kind"] == "boss")
+    assert boss["boss_wave"] == 10
+    assert boss["boss_name"] == BOSS_WAVE_DEFS[10]["name"]
 
 
 def test_build_plan_is_atomic_and_charges_only_after_full_validation() -> None:

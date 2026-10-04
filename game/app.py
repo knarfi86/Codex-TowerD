@@ -7,10 +7,10 @@ from typing import Dict, List, Optional, Tuple
 import pygame
 
 from .constants import (
-    BOARD_H, BOARD_W, BOARD_X, BOARD_Y, BUILD_PAD, BUILD_PAD_HOVER, CELL,
+    BOARD_H, BOARD_W, BOARD_X, BOARD_Y, BOSS_WAVE_DEFS, BUILD_PAD, BUILD_PAD_HOVER, CELL,
     DIFFICULTY_DEFS, DIFFICULTY_KEYS, ENEMY_DEFS, FPS, GOLD, GRASS, GRASS_ALT, GRID_COLS, GRID_ROWS, HEALTH,
     INK, MANA, MUTED, PANEL, PANEL_DARK, PATH, PATH_EDGE, PRIORITY_LABELS,
-    SELECT, SNAPSHOT_RATE, TEXT, TICK_RATE, TOWER_DEFS, TOWER_TYPES, WATER, WINDOW_H, WINDOW_W,
+    SELECT, SNAPSHOT_RATE, TEXT, TICK_RATE, TOWER_DEFS, TOWER_TYPES, WATER, WINDOW_H, WINDOW_W, boss_asset_wave_for,
 )
 from .config import RESOLUTION_PRESETS, load_config, save_config
 from .advisor import CharacterView
@@ -45,6 +45,11 @@ CREEP_ASSET_FILES = {
     "wisp": PROJECT_ROOT / "assets" / "creeps" / "creep_flying.png",
     "healer": PROJECT_ROOT / "assets" / "creeps" / "creep_healer.png",
     "shield": PROJECT_ROOT / "assets" / "creeps" / "creep_shield.png",
+    "siege": PROJECT_ROOT / "assets" / "creeps" / "creep_siege.png",
+}
+BOSS_ASSET_FILES = {
+    wave: PROJECT_ROOT / "assets" / "bosses" / definition["asset"]
+    for wave, definition in BOSS_WAVE_DEFS.items()
 }
 CREEP_VISUAL_SCALE = {
     "scout": 1.22,
@@ -53,6 +58,7 @@ CREEP_VISUAL_SCALE = {
     "wisp": 1.24,
     "healer": 1.34,
     "shield": 1.34,
+    "siege": 1.42,
 }
 ARENA_BACKGROUND_CANDIDATES = (
     PROJECT_ROOT / "assets" / "maps" / "map_creep_arena_bg.png",
@@ -91,6 +97,9 @@ class GameApp:
         self.creep_assets: Dict[str, pygame.Surface] = {}
         self.creep_asset_errors: Dict[str, str] = {}
         self.creep_sprite_cache: Dict[Tuple[str, int, Tuple[int, int]], pygame.Surface] = {}
+        self.boss_assets: Dict[int, pygame.Surface] = {}
+        self.boss_asset_errors: Dict[int, str] = {}
+        self.boss_sprite_cache: Dict[Tuple[int, int, Tuple[int, int]], pygame.Surface] = {}
         self.tower_assets: Dict[str, pygame.Surface] = {}
         self.tower_icons: Dict[str, pygame.Surface] = {}
         self.tower_asset_errors: Dict[str, str] = {}
@@ -214,6 +223,7 @@ class GameApp:
         self.layout = ResponsiveLayout.for_window(self.layout.width, self.layout.height, normalized)
         self._apply_layout_constants()
         self.creep_sprite_cache.clear()
+        self.boss_sprite_cache.clear()
         self.tower_sprite_cache.clear()
         self.tower_icon_cache.clear()
         self.arena_background_cache.clear()
@@ -231,6 +241,7 @@ class GameApp:
         self.layout = ResponsiveLayout.for_window(width, height, self.active_grid_size)
         self._apply_layout_constants()
         self.creep_sprite_cache.clear()
+        self.boss_sprite_cache.clear()
         self.tower_sprite_cache.clear()
         self.tower_icon_cache.clear()
         self._rebuild_fonts()
@@ -255,6 +266,14 @@ class GameApp:
                 self.creep_assets[kind] = pygame.image.load(str(path)).convert_alpha()
             except (OSError, pygame.error) as exc:
                 self.creep_asset_errors[kind] = str(exc)
+
+        for wave, path in BOSS_ASSET_FILES.items():
+            try:
+                if not path.exists():
+                    raise FileNotFoundError(path)
+                self.boss_assets[wave] = pygame.image.load(str(path)).convert_alpha()
+            except (OSError, pygame.error) as exc:
+                self.boss_asset_errors[wave] = str(exc)
 
         for kind, path in TOWER_ASSET_FILES.items():
             try:
@@ -298,6 +317,23 @@ class GameApp:
             target_size = (max(1, int(round(source.get_width() * scale))), target_height)
             self.creep_sprite_cache[key] = pygame.transform.smoothscale(source, target_size)
         return self.creep_sprite_cache[key]
+
+    def _boss_sprite(self, boss_wave: int) -> Optional[pygame.Surface]:
+        """Return the centrally mapped, cached boss portrait for this wave."""
+        asset_wave = boss_asset_wave_for(int(boss_wave))
+        source = self.boss_assets.get(asset_wave)
+        if source is None:
+            return None
+        key = (asset_wave, int(CELL), self.active_grid_size)
+        if key not in self.boss_sprite_cache:
+            target = max(42, int(round(CELL * 2.05)))
+            scale = min(target / source.get_width(), target / source.get_height())
+            target_size = (
+                max(1, int(round(source.get_width() * scale))),
+                max(1, int(round(source.get_height() * scale))),
+            )
+            self.boss_sprite_cache[key] = pygame.transform.smoothscale(source, target_size)
+        return self.boss_sprite_cache[key]
 
     def _tower_sprite(self, kind: str) -> Optional[pygame.Surface]:
         """Return a cached transparent sprite for a current grid-cell size."""
@@ -1056,9 +1092,22 @@ class GameApp:
                 self._queue_evil_comment("rare_new_record", snapshot=current)
         old_kinds = {enemy.get("kind") for enemy in previous.get("enemies", [])}
         new_kinds = {enemy.get("kind") for enemy in current.get("enemies", [])}
-        for kind, event in (("boss", "boss_appeared"), ("raider", "fast_enemies"), ("wisp", "flying_enemies"), ("healer", "healer_enemies"), ("shield", "shield_enemies")):
+        for kind, event in (("raider", "fast_enemies"), ("wisp", "flying_enemies"), ("healer", "healer_enemies"), ("shield", "shield_enemies")):
             if kind in new_kinds and kind not in old_kinds and kind not in self._evil_seen_enemy_roles:
                 self._evil_seen_enemy_roles.add(kind)
+                self._queue_evil_comment(event, snapshot=current)
+        old_boss_waves = {
+            int(enemy.get("boss_wave", 0))
+            for enemy in previous.get("enemies", [])
+            if enemy.get("kind") == "boss"
+        }
+        for enemy in current.get("enemies", []):
+            if enemy.get("kind") != "boss":
+                continue
+            boss_wave = int(enemy.get("boss_wave", 0))
+            if boss_wave not in old_boss_waves:
+                asset_wave = boss_asset_wave_for(boss_wave)
+                event = f"boss_wave_{asset_wave}" if asset_wave else "boss_appeared"
                 self._queue_evil_comment(event, snapshot=current)
         if "boss" in old_kinds and "boss" not in new_kinds and not current.get("game_over"):
             self._queue_evil_comment("boss_defeated", snapshot=current)
@@ -1603,6 +1652,25 @@ class GameApp:
         pygame.draw.rect(self.screen, (221, 229, 214), (castle.x + 13, castle.y + 11, 12, 19))
         self._text("BASE", (castle.centerx, castle.bottom + 2), TEXT, self.small, "midtop")
 
+    def _draw_boss_health_bar(self, bosses: List[Dict[str, object]]) -> None:
+        """Show the active boss identity and health without changing combat data."""
+        if not bosses:
+            return
+        boss = max(bosses, key=lambda item: float(item.get("max_hp", 0)))
+        width = min(max(220, int(BOARD_W * 0.56)), max(220, BOARD_W - 32))
+        rect = pygame.Rect(BOARD_X + (BOARD_W - width) // 2, BOARD_Y + 7, width, 31)
+        overlay = pygame.Surface(rect.size, pygame.SRCALPHA)
+        overlay.fill((16, 11, 25, 218))
+        self.screen.blit(overlay, rect)
+        pygame.draw.rect(self.screen, (208, 86, 196), rect, 1, border_radius=5)
+        name = str(boss.get("boss_name") or ENEMY_DEFS["boss"]["name"])
+        hp = max(0.0, float(boss.get("hp", 0)))
+        max_hp = max(1.0, float(boss.get("max_hp", 1)))
+        self._text(f"BOSS · {name} · {int(hp)}/{int(max_hp)} HP", (rect.centerx, rect.y + 4), TEXT, self.small, "midtop")
+        track = pygame.Rect(rect.x + 8, rect.bottom - 9, rect.w - 16, 5)
+        pygame.draw.rect(self.screen, (59, 33, 50), track, border_radius=3)
+        pygame.draw.rect(self.screen, (230, 82, 143), (track.x, track.y, int(track.w * hp / max_hp), track.h), border_radius=3)
+
     def _draw_towers_and_enemies(self) -> None:
         if not self.current:
             return
@@ -1655,21 +1723,24 @@ class GameApp:
             marker_y = (sprite_rect.bottom + 4) if sprite_rect else (center[1] + spec["radius"] + 8)
             for pip in range(tower["level"]):
                 pygame.draw.circle(self.screen, GOLD, (center[0] - 7 + pip * 7, marker_y), 2)
+        bosses: List[Dict[str, object]] = []
         for enemy in self.current["enemies"]:
             spec = ENEMY_DEFS[enemy["kind"]]
             center = self._screen_pos((enemy["x"], enemy["y"]))
             radius = spec["radius"]
             body = (220, 244, 255) if enemy["slow"] else spec["color"]
-            sprite = self._creep_sprite(enemy["kind"])
+            is_boss = bool(spec.get("boss"))
+            sprite = self._boss_sprite(int(enemy.get("boss_wave", 0))) if is_boss else self._creep_sprite(enemy["kind"])
             if sprite is None:
-                pygame.draw.circle(self.screen, (35, 29, 34), center, radius + 2)
-                pygame.draw.circle(self.screen, body, center, radius)
+                fallback_radius = max(radius, int(CELL * 0.84)) if is_boss else radius
+                pygame.draw.circle(self.screen, (35, 29, 34), center, fallback_radius + 2)
+                pygame.draw.circle(self.screen, body, center, fallback_radius)
                 if enemy.get("shielded"):
-                    pygame.draw.circle(self.screen, (153, 217, 255), center, radius + 4, 1)
+                    pygame.draw.circle(self.screen, (153, 217, 255), center, fallback_radius + 4, 1)
                 if enemy["flash"]:
-                    pygame.draw.circle(self.screen, (255, 255, 255), center, radius, 2)
-                bar_width = 30
-                bar_y = center[1] - radius - 10
+                    pygame.draw.circle(self.screen, (255, 255, 255), center, fallback_radius, 2)
+                bar_width = 54 if is_boss else 30
+                bar_y = center[1] - fallback_radius - 10
             else:
                 sprite_rect = sprite.get_rect(center=center)
                 self.screen.blit(sprite, sprite_rect)
@@ -1679,11 +1750,14 @@ class GameApp:
                     pygame.draw.ellipse(self.screen, (220, 244, 255), sprite_rect.inflate(-2, -2), 2)
                 if enemy["flash"]:
                     pygame.draw.ellipse(self.screen, (255, 255, 255), sprite_rect.inflate(-2, -2), 2)
-                bar_width = max(24, min(52, int(sprite_rect.width * 0.52)))
+                bar_width = max(54, min(104, int(sprite_rect.width * 0.72))) if is_boss else max(24, min(52, int(sprite_rect.width * 0.52)))
                 bar_y = sprite_rect.top - 9
-            bar = pygame.Rect(center[0] - bar_width // 2, bar_y, bar_width, 4)
+            bar = pygame.Rect(center[0] - bar_width // 2, bar_y, bar_width, 6 if is_boss else 4)
             pygame.draw.rect(self.screen, (54, 35, 41), bar, border_radius=2)
             pygame.draw.rect(self.screen, HEALTH, (bar.x, bar.y, int(bar.w * enemy["hp"] / enemy["max_hp"]), bar.h), border_radius=2)
+            if is_boss:
+                bosses.append(enemy)
+        self._draw_boss_health_bar(bosses)
 
     def _draw_panel(self) -> None:
         if not self.current:

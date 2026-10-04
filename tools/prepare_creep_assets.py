@@ -8,6 +8,7 @@ brightness threshold.
 
 from __future__ import annotations
 
+import argparse
 from collections import deque
 from pathlib import Path
 
@@ -23,6 +24,7 @@ SOURCES = {
     "flying": ASSET_DIR / "creep_flying_source.png.png",
     "healer": ASSET_DIR / "creep_healer_source.png.png",
     "shield": ASSET_DIR / "creep_shield_source.png.png",
+    "siege": ASSET_DIR / "creep_siege_source.png.png",
 }
 
 
@@ -256,12 +258,23 @@ def contact_sheet(outputs: dict[str, Path], destination: Path) -> None:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--missing-only",
+        action="store_true",
+        help="Nur fehlende Laufzeit-PNGs erzeugen und vorhandene finale Assets erhalten.",
+    )
+    args = parser.parse_args()
     missing = [str(path) for path in SOURCES.values() if not path.exists()]
     if missing:
         raise FileNotFoundError("Fehlende Originaldateien:\n" + "\n".join(missing))
     outputs: dict[str, Path] = {}
     for name, source in SOURCES.items():
         destination = ASSET_DIR / f"creep_{name}.png"
+        if args.missing_only and destination.exists():
+            outputs[name] = destination
+            print(f"{name}: vorhandenes finales Asset beibehalten ({destination.name})")
+            continue
         width, height, opaque = prepare(source, destination)
         outputs[name] = destination
         print(f"{name}: {source.name} -> {destination.name} | {width}x{height} | opaque={opaque}")

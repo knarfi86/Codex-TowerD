@@ -60,6 +60,8 @@ Mr. Evil kommentiert wichtige Ereignisse lokal und ereignisgesteuert. Unter dem 
 
 Die fünf aktiven Bau-Typen (`MG`, `Artillerie`, `Laser`, `Tesla`, `Support`) verwenden ihre transparenten Sprites aus `assets/towers/` sowie passende Icons aus `assets/towers/icons/`. Fehlende Einzeldateien und die älteren Typen (`Bogenschütze`, `Kanone`, `Frost`) fallen ohne Regeländerung auf die vorhandene geometrische Darstellung zurück.
 
+Die sieben Robo-Creeps werden aus `assets/creeps/` geladen; dazu gehört die freigestellte Belagerungseinheit `creep_siege.png`. Jede zehnte Welle enthält in allen Spielmodi genau einen Boss. Die zehn verbindlichen, transparenten Bossbilder liegen unter `assets/bosses/boss_wave_10.png` bis `boss_wave_100.png`, werden proportional und gecacht dargestellt und wiederholen sich ab Welle 110 deterministisch. Die Spezialkompositionen im Fünfer-Rhythmus bleiben bestehen, erzeugen aber bei Welle 5, 15, 25 usw. keinen Boss.
+
 Im Hauptmenü wechseln `A`/`D` oder die Pfeiltasten die Karte, `Tab` schaltet Singleplayer/Koop-LAN um, `1`-`3` wählen den Schwierigkeitsgrad und `Enter` startet die Partie.
 
 ## Spielmechaniken
@@ -72,7 +74,7 @@ Im Hauptmenü wechseln `A`/`D` oder die Pfeiltasten die Karte, `Tab` schaltet Si
 - **Zwei Kartenfamilien:** „Vordefinierte Wege“ behalten die klassischen festen Laufwege und begrenzten Bauplätze. „Turm-Maze“ nutzt ein freies Raster; dort legen ausschließlich die gesetzten Türme den BFS-Laufweg fest.
 - **Kartensprache:** „Vorgegebene Wege“ bedeutet, dass die Karte den Weg vorgibt. „Freies Bauen“ bedeutet, dass die Türme den Weg bilden.
 - **Forschung:** Drei Äste (Waffen, Technologie, Wirtschaft) werden über Wellen freigeschaltet und mit Coins gekauft. Forschungspunkte oder eine zweite Währung gibt es nicht.
-- **Gegnerrollen:** Standard, schnell, gepanzert, fliegend, Heiler, Schildgenerator, Belagerung und Boss haben jeweils eigene mechanische Effekte. Jede fünfte Big-Combo-Welle ist eine regelbasierte Spezialkombination.
+- **Gegnerrollen:** Standard, schnell, gepanzert, fliegend, Heiler, Schildgenerator, Belagerung und Boss haben jeweils eigene mechanische Effekte. Jede fünfte Big-Combo-Welle ist eine regelbasierte Spezialkombination; jede zehnte Welle bringt zusätzlich genau einen individuellen Boss.
 - **Akkordarbeit:** Nach dem Button „Start erste Welle“ beginnt die erste Welle; danach starten die weiteren Wellen automatisch.
 - **Megalomanie:** Alle 30 Sekunden wird das dauerhafte Rundeneinkommen als Coin-Tick ausgezahlt, unabhängig vom Wellenabschluss. Der Investitionsregler nimmt einen Prozentsatz des aktuellen Guthabens sofort aus dem Konto und erhöht dauerhaft das Tick-Einkommen.
 - **Vorbereitungszeit:** Die erste Welle in Megalomanie und Akkordarbeit wird bewusst per Button gestartet. Danach liegen zwischen den automatischen Wellen acht Sekunden Aufbauzeit.

@@ -320,7 +320,9 @@ class GameState:
     def _combo_summary(number: int) -> List[str]:
         roles = ["Schnelle Einheiten", "Gepanzerte Front", "Unterstützung durch Heiler"]
         if number % 5 == 0:
-            roles.extend(("Schildgenerator", "Belagerungsdruck", "Bossfähigkeit"))
+            roles.extend(("Schildgenerator", "Belagerungsdruck"))
+            if number % 10 == 0:
+                roles.append("Bossfähigkeit")
         elif number % 3 == 0:
             roles.append("Fliegende Flankierer")
         return roles
@@ -439,7 +441,7 @@ class GameState:
             weights.append(1.0 / (1 + load * 0.55))
         return list(self.random.choices(self.map.paths, weights=weights, k=1)[0])
 
-    def _spawn(self, enemy_kind: str) -> None:
+    def _spawn(self, enemy_kind: str, boss_wave: int = 0) -> None:
         enemy_kind = ENEMY_ALIASES.get(enemy_kind, enemy_kind)
         if self.mode == "big_combo" and not self.income_timer_active:
             self.income_timer_active = True
@@ -453,7 +455,7 @@ class GameState:
         else:
             dynamic_route = find_path(route[0], route[-1], {t.cell for t in self.towers.values()}, self.map.grid_size)
             route = list(dynamic_route) if dynamic_route else route
-        enemy = Enemy.create(self.next_enemy_id, enemy_kind, route, health_scale)
+        enemy = Enemy.create(self.next_enemy_id, enemy_kind, route, health_scale, boss_wave=boss_wave)
         self.enemies[enemy.eid] = enemy
         self.next_enemy_id += 1
 
@@ -616,7 +618,7 @@ class GameState:
         if self.plan is not None:
             spawned = self.plan.tick(dt)
             if spawned:
-                self._spawn(spawned)
+                self._spawn(spawned, boss_wave=self.plan.number if spawned == "boss" else 0)
         for enemy in list(self.enemies.values()):
             if enemy.spec.get("boss"):
                 enemy.ability_timer -= dt
